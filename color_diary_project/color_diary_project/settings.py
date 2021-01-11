@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'color_diary.apps.ColorDiaryConfig'
 ]
 
 MIDDLEWARE = [
@@ -75,8 +76,15 @@ WSGI_APPLICATION = 'color_diary_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'isolation_level': 'read committed'
+        },
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'color_diary',
+        'HOST': '',
+        'USER': 'color_diary',
+        'PASSWORD': 'color_diary_test',
+        'PORT': ''
     }
 }
 
@@ -105,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
