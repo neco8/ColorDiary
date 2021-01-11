@@ -108,6 +108,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Custom User Setting
+AUTH_USER_MODEL = 'color_diary.models.User'
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
