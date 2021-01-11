@@ -21,7 +21,7 @@ class UserManager(BaseUserManager):
             password=password
         )
         user.is_staff = True
-        return
+        return user
 
 
 class User(AbstractBaseUser):

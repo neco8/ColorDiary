@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Custom User Setting
-AUTH_USER_MODEL = 'color_diary.models.User'
+AUTH_USER_MODEL = 'color_diary.User'
 
 
 # Internationalization
