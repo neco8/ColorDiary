@@ -13,49 +13,53 @@ PASSWORD2 = 'password2'
 
 class UserModelTests(TestCase):
     def create_user(self, email, password):
-        user = User.objects.create_user(email=email, password=password)
-        return user
+        User.objects.create_user(email=email, password=password)
 
     def create_superuser(self, email, password):
-        user = User.objects.create_super_user(email=email, password=password)
-        return user
+        User.objects.create_superuser(email=email, password=password)
 
     def test_email_expected(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         self.assertEqual(user.email, EXAMPLE_EMAIL)
 
     def test_password_expected(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         self.assertTrue(user.check_password(PASSWORD1))
 
     def test_is_not_staff_with_user(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         self.assertFalse(user.is_staff)
 
     def test_is_staff_with_superuser(self):
-        superuser = self.create_superuser(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_superuser(EXAMPLE_EMAIL, PASSWORD1)
+        superuser = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         self.assertTrue(superuser.is_staff)
 
     def test_is_active_with_user(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         self.assertTrue(user.is_active)
 
     def test_value_error_when_email_is_empty(self):
         with self.assertRaises(ValueError):
-            user = self.create_user(email='', password=PASSWORD1)
+            self.create_user(email='', password=PASSWORD1)
 
     def test_str_of_user(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
         user_string = str(user)
         self.assertEqual(user_string, EXAMPLE_EMAIL)
 
     def test_filter_by_right_email(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
         user_queryset = get_user_model().objects.filter(email=EXAMPLE_EMAIL)
         self.assertQuerysetEqual(user_queryset, [f'<User: {EXAMPLE_EMAIL}>'])
 
     def test_filter_by_wrong_email(self):
-        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
         user_queryset = get_user_model().objects.filter(email=EXAMPLE_EMAIL2)
         self.assertQuerysetEqual(user_queryset, [])
 
