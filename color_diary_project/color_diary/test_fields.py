@@ -103,7 +103,7 @@ class ParseHexColorTests(TestCase):
 
 class HexColorFieldTests(TestCase):
     def test_that_db_type_returns_char(self):
-        self.assertEqual(HexColorField().db_type(connection=None), 'CHAR')
+        self.assertEqual(HexColorField().db_type(connection=None), 'CHAR(10)')
 
     def test_from_db_value_with_none(self):
         self.assertIsNone(HexColorField().from_db_value(value=None, expression=None, connection=None))

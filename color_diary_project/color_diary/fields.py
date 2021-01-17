@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 import re
+import math
 
 
 def is_hex(string: str):
@@ -49,6 +50,7 @@ class HexColor:
 def parse_hex_color(hex_color_code):
     # カラーコードは'FFFFFF'や'FFFFFF1.0'など
     # カラーコードをHexColorに変換する
+    # todo: alphaの桁数を1.00までにする
 
     if len(hex_color_code) < 6:
         raise ValueError(_('each of RGB must be 2 length.'))
@@ -71,12 +73,23 @@ def parse_hex_color(hex_color_code):
         if alpha < 0 or alpha > 1:
             raise ValueError(_('0 <= alpha <= 1.'))
 
-    return HexColor(*rgb_list, alpha)
+    floored_alpha = math.floor(alpha * 100) / 100
+
+    return HexColor(*rgb_list, floored_alpha)
 
 
 class HexColorField(models.Field):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 10
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs['max_length'] # 既に最大長は指定したため、ここでは読みやすさのために最大長は省く
+        return name, path, args, kwargs
+
     def db_type(self, connection):
-        return 'CHAR'
+        return 'CHAR(10)'
 
     def from_db_value(self, value, expression, connection):
         if value is None:
