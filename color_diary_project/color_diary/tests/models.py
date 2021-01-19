@@ -1,14 +1,61 @@
-import datetime
 import time
-from django.test import TestCase
+import datetime
 from django.utils import timezone
-from .models import Color, Diary
-from .fields import HexColor
-from .tests import UserModelTests
-from . import tests
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
+
+from ..fields import HexColor
+from ..models import Color, Diary
+from .constant import *
+from .. import signals
 
 
-CONTEXT = 'something context'
+class UserModelTests(TestCase):
+    @classmethod
+    def create_user(cls, email, password):
+        user = get_user_model().objects.create_user(email=email, password=password)
+        return user
+
+    @classmethod
+    def create_superuser(cls, email, password):
+        superuser = get_user_model().objects.create_superuser(email=email, password=password)
+        return superuser
+
+    def assertUser(self, user, email, password, is_staff, is_active):
+        self.assertEqual(user.email, email)
+        self.assertTrue(user.check_password(password))
+        self.assertEqual(user.is_staff, is_staff)
+        self.assertEqual(user.is_active, is_active)
+
+    def test_user(self):
+        user = self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        self.assertUser(user, EXAMPLE_EMAIL, PASSWORD1, False, True)
+
+    def test_superuser(self):
+        superuser = self.create_superuser(EXAMPLE_EMAIL, PASSWORD1)
+        self.assertUser(superuser, EXAMPLE_EMAIL, PASSWORD1, True, True)
+
+    def test_str_of_user(self):
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user = get_user_model().objects.get(email=EXAMPLE_EMAIL)
+        user_string = str(user)
+        self.assertEqual(user_string, EXAMPLE_EMAIL)
+
+    def test_filter_by_right_email(self):
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user_queryset = get_user_model().objects.filter(email=EXAMPLE_EMAIL)
+        self.assertQuerysetEqual(user_queryset, [f'<User: {EXAMPLE_EMAIL}>'])
+
+    def test_filter_by_wrong_email(self):
+        self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+        user_queryset = get_user_model().objects.filter(email=EXAMPLE_EMAIL2)
+        self.assertQuerysetEqual(user_queryset, [])
+
+    def test_duplicate_email(self):
+        with self.assertRaises(IntegrityError):
+            self.create_user(EXAMPLE_EMAIL, PASSWORD1)
+            self.create_user(EXAMPLE_EMAIL, PASSWORD2)
 
 
 class ColorModelTests(TestCase):
@@ -30,7 +77,7 @@ class ColorModelTests(TestCase):
 
     def test_create_color(self):
         color = self.create_color(red='ff', green='00', blue='00')
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         color.users.add(user)
 
         hex_color = HexColor('ff', '00', '00')
@@ -38,7 +85,7 @@ class ColorModelTests(TestCase):
         self.assertColor(get_color, 'FF', '00', '00', 1.0)
 
     def test_create_two_colors_with_same_hex_color(self):
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         color1 = self.create_color(red='ff', green='00', blue='00')
         color2 = self.create_color(red='ff', green='00', blue='00')
         color1.users.add(user)
@@ -48,8 +95,8 @@ class ColorModelTests(TestCase):
         self.assertEqual(color_list.count(), 1)
 
     def test_two_users_have_one_color(self):
-        user1 = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
-        user2 = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL2, password=tests.PASSWORD2)
+        user1 = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        user2 = UserModelTests.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         color = self.create_color(red='ff', green='00', blue='00')
         color.users.add(user1, user2)
 
@@ -68,7 +115,7 @@ class ColorModelTests(TestCase):
         self.assertEqual(user2_color_list[1].pk, color.pk) # ユーザーにはデフォルトで透明な色が追加される
 
     def test_one_user_have_two_color(self):
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         red = self.create_color(red='ff', green='00', blue='00')
         green = self.create_color(red='00', green='ff', blue='00')
         red.users.add(user)
@@ -105,7 +152,7 @@ class DiaryModelTests(TestCase):
 
     def test_create_diary(self):
         color = ColorModelTests.create_color('ff', '00', '00')
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         now = timezone.now()
         diary = self.create_diary(user=user, color=color, color_level=1, context=CONTEXT)
 
@@ -114,7 +161,7 @@ class DiaryModelTests(TestCase):
 
     def test_on_delete_after_user_delete(self):
         color = ColorModelTests.create_color('ff', '00', '00')
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         diary = self.create_diary(user=user, color=color, color_level=1, context=CONTEXT)
 
         user.delete()
@@ -123,7 +170,7 @@ class DiaryModelTests(TestCase):
             get_diary = Diary.objects.get(pk=diary.pk)
 
     def test_on_delete_after_color_delete(self):
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         color = ColorModelTests.create_color(red='ff', green='00', blue='00')
         diary = self.create_diary(user=user, color=color, color_level=1, context=CONTEXT)
 
@@ -134,7 +181,7 @@ class DiaryModelTests(TestCase):
         self.assertEqual(get_diary.color.hex_color, transparent)
 
     def test_auto_now_add_and_auto_now_when_update(self):
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         color = ColorModelTests.create_color(red='ff', green='00', blue='00')
         then = timezone.now()
         diary = self.create_diary(user=user, color=color, color_level=1, context='')
@@ -148,9 +195,11 @@ class DiaryModelTests(TestCase):
         self.assertDiary(diary=get_diary, user=user, color=color, color_level=1, created_at=then, updated_at=now, context=CONTEXT)
 
     def test_blank_context(self):
-        user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
+        user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         color = ColorModelTests.create_color(red='ff', green='00', blue='00')
         now = timezone.now()
         diary = self.create_diary(user=user, color=color, color_level=1, context='')
         get_diary = Diary.objects.get(pk=diary.pk)
         self.assertDiary(diary=get_diary, user=user, color=color, color_level=1, created_at=now, updated_at=now, context='')
+
+

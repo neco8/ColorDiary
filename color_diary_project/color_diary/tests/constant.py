@@ -1,0 +1,5 @@
+EXAMPLE_EMAIL = 'example1@gmail.com'
+EXAMPLE_EMAIL2 = 'example2@gmail.com'
+PASSWORD1 = 'password1'
+PASSWORD2 = 'password2'
+CONTEXT = 'something context'
