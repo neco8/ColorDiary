@@ -66,10 +66,13 @@ class Color(models.Model):
     objects = ColorManager()
 
     @classmethod
-    def get_default_color(self):
-        transparent = HexColor('FF', 'FF', 'FF', 0)
-        default_color, created = self.objects.get_or_create(hex_color=transparent)
+    def get_default_color(cls):
+        transparent = HexColor('FF', 'FF', 'FF', 0.0)
+        default_color = cls.objects.create(hex_color=transparent)
         return default_color
+
+    def __str__(self):
+        return str(self.hex_color)
 
 
 class Diary(models.Model):

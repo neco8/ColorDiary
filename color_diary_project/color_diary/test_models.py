@@ -58,14 +58,14 @@ class ColorModelTests(TestCase):
         user2_color_list = user2.colors.all()
 
         self.assertEqual(user_list.count(), 2)
-        self.assertEqual(user1_color_list.count(), 1)
-        self.assertEqual(user2_color_list.count(), 1)
+        self.assertEqual(user1_color_list.count(), 2) # ユーザーにはデフォルトで透明な色が追加される
+        self.assertEqual(user2_color_list.count(), 2) # ユーザーにはデフォルトで透明な色が追加される
 
         self.assertEqual(user_list[0].pk, user1.pk)
         self.assertEqual(user_list[1].pk, user2.pk)
 
-        self.assertEqual(user1_color_list[0].pk, color.pk)
-        self.assertEqual(user2_color_list[0].pk, color.pk)
+        self.assertEqual(user1_color_list[1].pk, color.pk) # ユーザーにはデフォルトで透明な色が追加される
+        self.assertEqual(user2_color_list[1].pk, color.pk) # ユーザーにはデフォルトで透明な色が追加される
 
     def test_one_user_have_two_color(self):
         user = UserModelTests.create_user(email=tests.EXAMPLE_EMAIL, password=tests.PASSWORD1)
@@ -80,10 +80,10 @@ class ColorModelTests(TestCase):
 
         self.assertEqual(red_user_list.count(), 1)
         self.assertEqual(green_user_list.count(), 1)
-        self.assertEqual(color_list.count(), 2)
+        self.assertEqual(color_list.count(), 3) # ユーザーにはデフォルトで透明な色が追加される
 
-        self.assertEqual(color_list[0].pk, red.pk)
-        self.assertEqual(color_list[1].pk, green.pk)
+        self.assertEqual(color_list[1].pk, red.pk) # ユーザーにはデフォルトで透明な色が追加される
+        self.assertEqual(color_list[2].pk, green.pk) # ユーザーにはデフォルトで透明な色が追加される
 
         self.assertEqual(red_user_list[0].pk, user.pk)
         self.assertEqual(green_user_list[0].pk, user.pk)
