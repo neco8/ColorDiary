@@ -1,5 +1,6 @@
 from django.test import TestCase
-from .fields import HexColor, HexColorField, is_hex, parse_hex_color
+
+from ..fields import is_hex, parse_hex_color, HexColor, HexColorField
 
 
 class IsHexTests(TestCase):
