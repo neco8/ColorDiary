@@ -50,7 +50,6 @@ class HexColor:
 def parse_hex_color(hex_color_code):
     # カラーコードは'FFFFFF'や'FFFFFF1.0'など
     # カラーコードをHexColorに変換する
-    # todo: alphaの桁数を1.00までにする
 
     if len(hex_color_code) < 6:
         raise ValueError(_('each of RGB must be 2 length.'))
