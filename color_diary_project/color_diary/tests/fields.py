@@ -15,54 +15,54 @@ class IsHexTests(TestCase):
 
 
 class HexColorTests(TestCase):
+    def assertHexColor(self, hex_color, red, green, blue, alpha):
+        self.assertEqual(hex_color.red, red)
+        self.assertEqual(hex_color.green, green)
+        self.assertEqual(hex_color.blue, blue)
+        self.assertEqual(hex_color.alpha, alpha)
+
     def test_init_red_with_not_hex(self):
-        with self.assertRaises(ValueError, msg='RGB must be hex.'):
+        with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
             HexColor('zz', 'ff', 'ff')
 
     def test_init_green_with_not_hex(self):
-        with self.assertRaises(ValueError, msg='RGB must be hex.'):
+        with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
             HexColor('ff', 'zz', 'ff')
 
     def test_init_blue_with_not_hex(self):
-        with self.assertRaises(ValueError, msg='RGB must be hex.'):
+        with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
             HexColor('ff', 'ff', 'zz')
 
     def test_init_red_with_wrong_length(self):
-        with self.assertRaises(ValueError, msg='each of RGB must be 2 length.'):
+        with self.assertRaisesMessage(ValueError, expected_message='each of RGB must be 2 length.'):
             HexColor('fff', 'ff', 'ff')
 
     def test_init_green_with_wrong_length(self):
-        with self.assertRaises(ValueError, msg='each of RGB must be 2 length.'):
+        with self.assertRaisesMessage(ValueError, expected_message='each of RGB must be 2 length.'):
             HexColor('ff', 'fff', 'ff')
 
     def test_init_blue_with_wrong_length(self):
-        with self.assertRaises(ValueError, msg='each of RGB must be 2 length.'):
+        with self.assertRaisesMessage(ValueError, expected_message='each of RGB must be 2 length.'):
             HexColor('ff', 'ff', 'fff')
 
     def test_init_alpha_with_string(self):
-        with self.assertRaises(ValueError, msg='Could not convert string to float: \'string\''):
+        with self.assertRaisesMessage(ValueError, expected_message='could not convert string to float: \'string\''):
             HexColor('ff', 'ff', 'ff', 'string')
 
     def test_init_alpha_with_0(self):
         hex_color = HexColor('ff', 'ff', 'ff', 0)
-        self.assertEqual(hex_color.red, 'FF')
-        self.assertEqual(hex_color.green, 'FF')
-        self.assertEqual(hex_color.blue, 'FF')
-        self.assertEqual(hex_color.alpha, 0.0)
+        self.assertHexColor(hex_color, 'FF', 'FF', 'FF', 0.0)
 
     def test_init_alpha_with_1(self):
         hex_color = HexColor('ff', 'ff', 'ff', 1)
-        self.assertEqual(hex_color.red, 'FF')
-        self.assertEqual(hex_color.green, 'FF')
-        self.assertEqual(hex_color.blue, 'FF')
-        self.assertEqual(hex_color.alpha, 1.0)
+        self.assertHexColor(hex_color, 'FF', 'FF', 'FF', 1.0)
 
     def test_init_alpha_with_minus_1(self):
-        with self.assertRaises(ValueError, msg='0 <= alpha <= 1.'):
+        with self.assertRaisesMessage(ValueError, expected_message='0 <= alpha <= 1.'):
             hex_color = HexColor('ff', 'ff', 'ff', -1)
 
     def test_init_alpha_with_2(self):
-        with self.assertRaises(ValueError, msg='0 <= alpha <= 1.'):
+        with self.assertRaisesMessage(ValueError, expected_message='0 <= alpha <= 1.'):
             hex_color = HexColor('ff', 'ff', 'ff', 2)
 
     def test_str(self):
@@ -72,33 +72,31 @@ class HexColorTests(TestCase):
 
 class ParseHexColorTests(TestCase):
     def test_red_with_string(self):
-        with self.assertRaises(ValueError, msg='RGB must be hex.'):
-            parse_hex_color('zzffff1.0')
+        with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
+            print(parse_hex_color('zzffff1.0'))
 
     def test_alpha_with_string(self):
-        with self.assertRaises(ValueError, msg='alpha must be float.(0 <= alpha <= 1)'):
-            parse_hex_color('ffffffk')
+        with self.assertRaisesMessage(ValueError, expected_message='hex_color_code is wrong.'):
+            print(parse_hex_color('ffffffk'))
+
+    def test_parse_hex_color_with_symbol(self):
+        hex_color = parse_hex_color('#ffffff-----$%$"&"&"$%"$%"&"----0')
+        HexColorTests().assertHexColor(hex_color, 'FF', 'FF', 'FF', 0.0)
 
     def test_alpha_with_0(self):
         hex_color = parse_hex_color('ffffff0')
-        self.assertEqual(hex_color.red, 'FF')
-        self.assertEqual(hex_color.green, 'FF')
-        self.assertEqual(hex_color.blue, 'FF')
-        self.assertEqual(hex_color.alpha, 0.0)
+        HexColorTests().assertHexColor(hex_color, 'FF', 'FF', 'FF', 0.0)
 
     def test_alpha_with_1(self):
         hex_color = parse_hex_color('ffffff1')
-        self.assertEqual(hex_color.red, 'FF')
-        self.assertEqual(hex_color.green, 'FF')
-        self.assertEqual(hex_color.blue, 'FF')
-        self.assertEqual(hex_color.alpha, 1.0)
+        HexColorTests().assertHexColor(hex_color, 'FF', 'FF', 'FF', 1.0)
 
-    def test_alpha_with_minus_1(self):
-        with self.assertRaises(ValueError, msg=''):
-            parse_hex_color('ffffff-1')
+    def test_alpha_with_2(self):
+        with self.assertRaisesMessage(ValueError, expected_message=''):
+            parse_hex_color('ffffff2')
 
     def test_with_low_count_of_string(self):
-        with self.assertRaises(ValueError, msg='each of RGB must be 2 length.'):
+        with self.assertRaisesMessage(ValueError, expected_message='hex_color_code is wrong.'):
             parse_hex_color('fff1')
 
 
