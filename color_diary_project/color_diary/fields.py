@@ -6,8 +6,7 @@ import math
 
 
 def is_hex(string: str):
-    string = string.upper()
-    return bool(re.fullmatch('[0-9A-F]+', string))
+    return bool(re.fullmatch(r'[0-9a-fA-F]+', string))
 
 
 class HexColor:
@@ -38,27 +37,83 @@ class HexColor:
         self.alpha = alpha
 
     def __str__(self):
-        return ''.join(['#', self.red, self.green, self.blue, '-', str(self.alpha)])
+        return f'#{self.red}{self.green}{self.blue}-{self.alpha}'
 
     def __eq__(self, other):
+        if not isinstance(other, HexColor):
+            try:
+                other = parse_hex_color(other)
+            except:
+                return False
+
         return self.red == other.red \
                and self.green == other.green \
                and self.blue == other.blue\
                and self.alpha == other.alpha
 
+    def __gt__(self, other):
+        if self.hue > other.hue:
+            return True
+        if self.saturation > other.saturation:
+            return True
+        return self.value < other.value
+
+    def __lt__(self, other):
+        if self.hue < other.hue:
+            return True
+        if self.saturation < other.saturation:
+            return True
+        return self.value > other.value
+
+    def _calc_color(self):
+        calc_red = int(self.red, 16) / 255
+        calc_green = int(self.green, 16) / 255
+        calc_blue = int(self.blue, 16) / 255
+
+        cmax = max(calc_red, calc_green, calc_blue)
+        cmin = min(calc_red, calc_green, calc_blue)
+        return calc_red, calc_green, calc_blue, cmax, cmin
+
+    @property
+    def hue(self):
+        calc_red, calc_green, calc_blue, cmax, cmin = self._calc_color()
+
+        hue = -1
+        if cmax == cmin:
+            return hue
+        elif calc_blue == cmax:
+            hue = (60 * (calc_green - calc_red) / (cmax - cmin) + 60) % 360
+        elif calc_red == cmax:
+            hue = (60 * (calc_blue - calc_green) / (cmax - cmin) + 120) % 360
+        else:
+            hue = (60 * (calc_red - calc_blue) / (cmax - cmin) + 240) % 360
+
+        return hue
+
+    @property
+    def saturation(self):
+        calc_red, calc_green, calc_blue, cmax, cmin = self._calc_color()
+        return cmax - cmin
+
+    @property
+    def value(self):
+        calc_red, calc_green, calc_blue, cmax, cmin = self._calc_color()
+        return cmax
+
 # note: カラーコードからHexColorへ変換する動作はHexColorField内にしかないからHexColorField内へ移動した。いや、将来文字列から変換するなんて色々使えるだろう。だから外にするべきだ
-def parse_hex_color(hex_color_code):
+def parse_hex_color(hex_color_code: str):
     # カラーコードは'FFFFFF'や'FFFFFF1.0'など
     # カラーコードをHexColorに変換する
 
-    if len(hex_color_code) < 6:
-        raise ValueError(_('each of RGB must be 2 length.'))
+    # 記号を取り除いておく
+    hex_color_code = re.sub(r'[^a-zA-Z0-9.]', '', hex_color_code)
 
     # fixme: もっといいリストを作る実装あるよね、多分
-    rgb_list = [hex_color_code[:2], hex_color_code[2:4], hex_color_code[4:6]]
-    alpha = 1.0
-    if len(hex_color_code) > 6:
-        alpha = hex_color_code[6:]
+    match = re.fullmatch(r'(\w{2})(\w{2})(\w{2})([0-9.]+)?', hex_color_code)
+    if match is None:
+        raise ValueError(_('hex_color_code is wrong.'))
+    rgb_list = [match.group(1), match.group(2), match.group(3)]
+    alpha = match.group(4) or 1.0
 
     for color in rgb_list:
         if not is_hex(color):
@@ -96,7 +151,7 @@ class HexColorField(models.Field):
         return parse_hex_color(value)
 
     def get_prep_value(self, value):
-        return ''.join([value.red, value.green, value.blue, str(value.alpha)]) # データベースの為めに文字列に変換する処理はHexColorクラスではなくこのクラスに入れるのか！
+        return f'{value.red}{value.green}{value.blue}{value.alpha}' # データベースの為めに文字列に変換する処理はHexColorクラスではなくこのクラスに入れるのか！
 
     def to_python(self, value):
         if value is None:
