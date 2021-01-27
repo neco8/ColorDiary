@@ -6,9 +6,12 @@ from .models import Diary, Color
 from .fields import parse_hex_color
 
 
+DEFAULT_COLOR_LEVEL = 10
+
+
 class ChooseColorForm(forms.Form):
     color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color(), queryset=None)
-    color_level = forms.ChoiceField(choices=Diary.COLOR_LEVELS, initial=10)
+    color_level = forms.ChoiceField(choices=Diary.COLOR_LEVELS, initial=DEFAULT_COLOR_LEVEL)
 
     def __init__(self, *args, **kwargs):
         self.login_user = kwargs.pop('login_user', None)
