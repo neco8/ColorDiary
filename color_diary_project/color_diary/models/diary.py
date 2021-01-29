@@ -3,7 +3,20 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from . import User, Color
 
 
+class DiaryManager(models.Manager):
+    # must not see other user's diary even if you are administrator.
+    def get(self, user, **kwargs):
+        return super().get(user=user, **kwargs)
+
+    def filter(self, user, **kwargs):
+        return super().filter(**kwargs).filter(user=user)
+
+    def all(self, user):
+        return super().all().filter(user=user)
+
+
 class Diary(models.Model):
+    objects = DiaryManager()
     COLOR_LEVELS = [
         (1, '1'),
         (2, '2'),
