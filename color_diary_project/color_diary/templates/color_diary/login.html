@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+</head>
+<body>
+    {% if error_message %}<p>{{ error_message }}</p>{% endif %}
+    <form method="post" action="{{ request.get_full_path }}">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="ログイン">
+    </form>
+</body>
+</html>
