@@ -5,10 +5,13 @@
     <title>Title</title>
 </head>
 <body>
+    {% load encode %}
     {% for diary in diary_list %}
         {{ diary.created_at }}<br>
-        {{ diary.context }}<br>
+        <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}"> {{ diary.context }}</a><br>
         {{ diary.color }}<br>
     {% endfor %}
+
+    <a href="{% url 'color_diary:edit-diary' diary_hash_id=DIARY_CREATE|encode %}">新規作成</a>
 </body>
 </html>
