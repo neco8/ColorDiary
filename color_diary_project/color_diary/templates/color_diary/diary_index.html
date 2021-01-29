@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% for diary in diary_list %}
+        {{ diary.created_at }}<br>
+        {{ diary.context }}<br>
+        {{ diary.color }}<br>
+    {% endfor %}
+</body>
+</html>

@@ -1,17 +1,21 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-import datetime
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .edit import DIARY_CREATE
+from ..models import Diary
 
 
-# loginが必要
-# generic viewが使えそう
-def diary_index(request):
-    referer = request.META.get('HTTP_REFERER')
-    dat = datetime.datetime.now()
-    return HttpResponse(f'日記の一覧を表示します{referer=} {request=} {dat=}')
+class DiaryIndexView(LoginRequiredMixin, ListView):
+    # todo: フィルタ機能をつける
+    login_url = '/color-diary/login/'
+    template_name = 'color_diary/diary_index.html'
+    context_object_name = 'diary_list'
+
+    def get_queryset(self):
+        return Diary.objects.all(user=self.request.user).order_by('-created_at')
 
 
 def color_index(request):

@@ -345,32 +345,36 @@ class EditColorViewTests(TestCase):
 
 
 class DiaryIndexViewTests(TestCase):
-#日記一覧を表示する
-# todo: 操作できるのは自分のユーザーだけ
     def setUp(self) -> None:
-        pass
+        self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.color = Color.objects.create(hex_color=parse_hex_color('ff0000'))
 
-#        pass
-        #status_code
-        #responsecontain
-        #context
+        self.old_diary = Diary.objects.create(user=self.user, color=self.color, color_level=8, context='this is an old diary.')
+        self.new_diary = Diary.objects.create(user=self.user, color=self.color, color_level=8, context='this is a new diary.')
 
-    def test_choose_color_view_with_not_login_user(self):
+        self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
+        self.color_user2 = Color.objects.create(hex_color=parse_hex_color('00ff00'))
+        self.color_user2.users.add(self.user2)
+
+        self.diary_of_other_user = Diary.objects.create(user=self.user2, color=self.color_user2, color_level=8, context="this is other user's diary.")
+
+    def test_diary_index_view_with_not_login_user(self):
         self.client.logout()
-        hash_id = get_hashids().encode(0)
-        choose_color_url = reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id})
+        choose_color_url = reverse('color_diary:diary-index')
         response_before_login = self.client.get(choose_color_url)
         login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
         self.assertRedirects(response_before_login, login_url)
-    def test_diary_index_view_with_not_login_user(self):
-        pass
 
     def test_two_diaries(self):
-        pass
-        # order updated_at
+        response = self.client.get(reverse('color_diary:diary-index'))
+        self.assertQuerysetEqual(response.context['diary_list'], [f'<Diary: Diary object ({self.new_diary.pk})>', f'<Diary: Diary object ({self.old_diary.pk})>'])
+        # order created_at
 
     def test_older_one_update(self):
-        pass
+        response = self.client.get(reverse('color_diary:diary-index'))
+        self.old_diary.context = 'this is an updated old diary.'
+        self.assertQuerysetEqual(response.context['diary_list'], [f'<Diary: Diary object ({self.new_diary.pk})>', f'<Diary: Diary object ({self.old_diary.pk})>'])
 
 
 class ColorIndexViewTests(TestCase):
