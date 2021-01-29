@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from .models import Diary, Color
+from .models import Diary, Color, User
 from .fields import parse_hex_color
 
 
@@ -91,3 +91,11 @@ class DiaryModelForm(forms.ModelForm):
 
         if self.color.users.filter(id=self.user.id).count() == 0:
             raise ValidationError(_("this is invalid color. you don't have this color."))
+
+
+class UserLoginForm(forms.ModelForm):
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ('email',)
