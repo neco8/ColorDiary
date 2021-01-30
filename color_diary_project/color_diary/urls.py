@@ -12,7 +12,7 @@ urlpatterns = [
     path('diaries/<str:diary_hash_id>/choose-color/', views.ChooseColorView.as_view(), name='choose-color'),
     path('diaries/<str:diary_hash_id>/', views.edit_diary, name='edit-diary'),
     path('diaries/<str:diary_hash_id>/delete/', views.DeleteDiaryView.as_view(), name='delete-diary'),
-    path('colors/', views.color_index, name='color-index'),
+    path('colors/', views.ColorIndexView.as_view(), name='color-index'),
     path('colors/<str:color_hash_id>/', views.edit_color, name='edit-color'),
     path('colors/<str:color_hash_id>/delete/', views.DeleteColorView.as_view(), name='delete-color'),
 ]

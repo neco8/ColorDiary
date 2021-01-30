@@ -239,13 +239,13 @@ class DeleteColorViewTests(TestCase):
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user_color = Color.objects.create(hex_color=parse_hex_color('ff0000'))
         self.user_color.users.add(self.user)
-        
+
         self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         self.user2_color = Color.objects.create(hex_color=parse_hex_color('00ff00'))
         self.user2_color.users.add(self.user2)
-        
+
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
-        
+
     def test_delete_color_view_with_not_login_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(self.user_color.pk)
@@ -317,6 +317,7 @@ class EditColorViewTests(TestCase):
 # todo: データベースに変更があるものはリダイレクトされるか確認する
 # todo: 将来的にカラーピッカーを追加する
 # todo: 操作できるのは自分のユーザーだけ
+# todo: デフォルトカラーのurlだったら色一覧画面にリダイレクト
 #まず色一覧画面が表示される
 #色一覧画面のなかで追加ボタンがある
 #追加ボタンもしくは色編集を押すとこの画面に行く
@@ -361,9 +362,9 @@ class DiaryIndexViewTests(TestCase):
 
     def test_diary_index_view_with_not_login_user(self):
         self.client.logout()
-        choose_color_url = reverse('color_diary:diary-index')
-        response_before_login = self.client.get(choose_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
+        diary_index_url = reverse('color_diary:diary-index')
+        response_before_login = self.client.get(diary_index_url)
+        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={diary_index_url}'
         self.assertRedirects(response_before_login, login_url)
 
     def test_two_diaries(self):
@@ -378,14 +379,50 @@ class DiaryIndexViewTests(TestCase):
 
 
 class ColorIndexViewTests(TestCase):
-# todo: 操作できるのは自分のユーザーだけ
-    def test_choose_color_view_with_not_login_user(self):
+    def setUp(self) -> None:
+        # 赤から緑から青 100の位
+        # 彩度高い方が大きい 10の位
+        # 黒の方が大きい 1の位
+        self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.user_color4 = Color.objects.create(hex_color=parse_hex_color('e60000')) # より黒い
+        self.user_color3 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
+        self.user_color6 = Color.objects.create(hex_color=parse_hex_color('ff5400')) # さらに色相が高い
+        self.user_color1 = Color.objects.create(hex_color=parse_hex_color('000000')) # 無彩色は一番最初に来る
+        self.user_color2 = Color.objects.create(hex_color=parse_hex_color('ff1919')) # 彩度が低い
+        self.user_color5 = Color.objects.create(hex_color=parse_hex_color('ff2a00')) # 色相が高い
+        self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
+        self.user2_color1 = Color.objects.create(hex_color=parse_hex_color('00ff00'))
+        self.user2_color2 = Color.objects.create(hex_color=parse_hex_color('00ff11'))
+
+        self.user.colors.add(self.user_color1, self.user_color2, self.user_color3, self.user_color4, self.user_color5, self.user_color6)
+        self.user2.colors.add(self.user2_color1, self.user2_color2)
+
+        self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
+
+    # todo: 操作できるのは自分の色だけ
+    def test_color_index_view_with_not_login_user(self):
         self.client.logout()
-        hash_id = get_hashids().encode(0)
-        choose_color_url = reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id})
-        response_before_login = self.client.get(choose_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
+        color_index_url = reverse('color_diary:color-index')
+        response_before_login = self.client.get(color_index_url)
+        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={color_index_url}'
         self.assertRedirects(response_before_login, login_url)
+
+    def test_order_of_color(self):
+        response = self.client.get(reverse('color_diary:color-index'))
+        l = response.context['color_list']
+        self.assertQuerysetEqual(response.context['color_list'], [
+            f'<Color: {Color.get_default_color()}>',
+            f'<Color: {self.user_color1}>',
+            f'<Color: {self.user_color2}>',
+            f'<Color: {self.user_color3}>',
+            f'<Color: {self.user_color4}>',
+            f'<Color: {self.user_color5}>',
+            f'<Color: {self.user_color6}>',
+        ])
+
+    def test_disabled_link_of_default_color(self):
+        response = self.client.get(reverse('color_diary:color-index'))
+        self.assertContains(response, 'FFFFFF')
 
 
 class WelcomeViewTests(TestCase):
