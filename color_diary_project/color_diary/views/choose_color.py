@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import Diary
 from ..forms import ChooseColorForm
 from ..utils import get_hashids
-from .edit import DIARY_CREATE
+from .edit import CREATE
 
 
 class ChooseColorView(LoginRequiredMixin, View):
@@ -21,7 +21,7 @@ class ChooseColorView(LoginRequiredMixin, View):
         except:
             raise ValueError(_('invalid diary hash id.'))
 
-        if diary_id == DIARY_CREATE:
+        if diary_id == CREATE:
             self.form = ChooseColorForm(login_user=request.user)
         else: # 編集
             try:

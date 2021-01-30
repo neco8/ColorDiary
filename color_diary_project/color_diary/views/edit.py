@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 
 
-DIARY_CREATE = 0
+CREATE = 0
 
 
 def edit_diary(request, diary_hash_id):

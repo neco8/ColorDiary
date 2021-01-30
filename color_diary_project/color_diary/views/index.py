@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .edit import DIARY_CREATE
+from .edit import CREATE
 from ..utils import get_hashids
 from ..models import Diary
 
@@ -19,7 +19,7 @@ class DiaryIndexView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data()
-        context['DIARY_CREATE'] = DIARY_CREATE
+        context['CREATE'] = CREATE
         return context
 
 
