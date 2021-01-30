@@ -24,9 +24,6 @@ class Color(models.Model):
     hex_color = HexColorField(verbose_name='hex color code')
     objects = ColorManager()
 
-    class Meta:
-        ordering = ['-hex_color', 'id']
-
     @classmethod
     def get_default_color(cls):
         transparent = HexColor('FF', 'FF', 'FF', 0.0)
