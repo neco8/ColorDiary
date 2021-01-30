@@ -52,17 +52,17 @@ class HexColor:
                and self.alpha == other.alpha
 
     def __gt__(self, other):
-        if self.hue > other.hue:
-            return True
-        if self.saturation > other.saturation:
-            return True
+        if self.hue != other.hue:
+            return self.hue > other.hue
+        if self.saturation != other.saturation:
+            return self.saturation > other.saturation
         return self.value < other.value
 
     def __lt__(self, other):
-        if self.hue < other.hue:
-            return True
-        if self.saturation < other.saturation:
-            return True
+        if self.hue != other.hue:
+            return self.hue < other.hue
+        if self.saturation != other.saturation:
+            return self.saturation < other.saturation
         return self.value > other.value
 
     def _calc_color(self):
