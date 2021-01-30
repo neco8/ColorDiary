@@ -1,9 +1,11 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
+from django.db.models import IntegerField, Case, When, Value
 
 from .models import Diary, Color, User
 from .fields import parse_hex_color
+
 
 
 DEFAULT_COLOR_LEVEL = 10
@@ -20,7 +22,22 @@ class ChooseColorForm(forms.Form):
             raise ValueError(_('the user argument is not given.'))
 
         super().__init__(*args, **kwargs)
-        self.fields["color"].queryset = Color.objects.filter(users__id=self.login_user.pk)
+
+        # querysetをHexColorオブジェクトでソートする
+        queryset = Color.objects.filter(users__id=self.login_user.pk)
+        sorted_list = sorted(queryset, key=lambda color: color.hex_color)
+
+        cases = []
+        for hex_color_order, color in enumerate(sorted_list):
+            cases.append(When(id=color.pk, then=Value(hex_color_order)))
+
+        self.fields["color"].queryset =  queryset.annotate(
+            hex_color_order=Case(
+                *cases,
+                output_field=IntegerField()
+            )
+        ).order_by('hex_color_order')
+
 
 
 class ColorModelForm(forms.ModelForm):
