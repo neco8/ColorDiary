@@ -8,7 +8,6 @@ from django.db.utils import IntegrityError
 from ..fields import HexColor
 from ..models import Color, Diary
 from .constant import *
-from .. import signals
 
 
 class UserModelTests(TestCase):
@@ -156,7 +155,7 @@ class DiaryModelTests(TestCase):
         now = timezone.now()
         diary = self.create_diary(user=user, color=color, color_level=1, context=CONTEXT)
 
-        get_diary = Diary.objects.get(pk=diary.pk) # いちいち保存したものを再び取ってきて、値を確認するのってテストになるのかな？わからないけどとりあえず書いてみよう。
+        get_diary = Diary.objects.get(pk=diary.pk, user=user) # いちいち保存したものを再び取ってきて、値を確認するのってテストになるのかな？わからないけどとりあえず書いてみよう。
         self.assertDiary(diary=get_diary, user=user, color=color, color_level=1, created_at=now, updated_at=now, context=CONTEXT)
 
     def test_on_delete_after_user_delete(self):
@@ -167,7 +166,7 @@ class DiaryModelTests(TestCase):
         user.delete()
 
         with self.assertRaises(Diary.DoesNotExist):
-            get_diary = Diary.objects.get(pk=diary.pk)
+            get_diary = Diary.objects.get(pk=diary.pk, user=user)
 
     def test_on_delete_after_color_delete(self):
         user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
@@ -176,7 +175,7 @@ class DiaryModelTests(TestCase):
 
         color.delete()
 
-        get_diary = Diary.objects.get(pk=diary.pk)
+        get_diary = Diary.objects.get(pk=diary.pk, user=user)
         transparent = HexColor('ff', 'ff', 'ff', 0.0)
         self.assertEqual(get_diary.color.hex_color, transparent)
 
@@ -191,7 +190,7 @@ class DiaryModelTests(TestCase):
         diary.context = CONTEXT
         diary.save()
 
-        get_diary = Diary.objects.get(pk=diary.pk)
+        get_diary = Diary.objects.get(pk=diary.pk, user=user)
         self.assertDiary(diary=get_diary, user=user, color=color, color_level=1, created_at=then, updated_at=now, context=CONTEXT)
 
     def test_blank_context(self):
@@ -199,7 +198,7 @@ class DiaryModelTests(TestCase):
         color = ColorModelTests.create_color(red='ff', green='00', blue='00')
         now = timezone.now()
         diary = self.create_diary(user=user, color=color, color_level=1, context='')
-        get_diary = Diary.objects.get(pk=diary.pk)
+        get_diary = Diary.objects.get(pk=diary.pk, user=user)
         self.assertDiary(diary=get_diary, user=user, color=color, color_level=1, created_at=now, updated_at=now, context='')
 
 
