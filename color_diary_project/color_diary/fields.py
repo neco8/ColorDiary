@@ -81,12 +81,12 @@ class HexColor:
         hue = -1
         if cmax == cmin:
             return hue
-        elif calc_blue == cmax:
-            hue = (60 * (calc_green - calc_red) / (cmax - cmin) + 60) % 360
         elif calc_red == cmax:
-            hue = (60 * (calc_blue - calc_green) / (cmax - cmin) + 120) % 360
-        else:
-            hue = (60 * (calc_red - calc_blue) / (cmax - cmin) + 240) % 360
+            hue = (60 * (calc_green - calc_blue) / (cmax - cmin)) % 360
+        elif calc_green == cmax:
+            hue = (60 * (calc_blue - calc_red) / (cmax - cmin) + 120) % 360
+        elif calc_blue == cmax:
+            hue = (60 * (calc_red - calc_green) / (cmax - cmin) + 240) % 360
 
         return hue
 
