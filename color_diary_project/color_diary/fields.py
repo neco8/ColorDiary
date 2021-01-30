@@ -93,7 +93,9 @@ class HexColor:
     @property
     def saturation(self):
         calc_red, calc_green, calc_blue, cmax, cmin = self._calc_color()
-        return cmax - cmin
+        if cmax == 0:
+            return 0
+        return (cmax - cmin) / cmax
 
     @property
     def value(self):
