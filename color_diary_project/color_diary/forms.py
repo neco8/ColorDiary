@@ -7,7 +7,6 @@ from .models import Diary, Color, User
 from .fields import parse_hex_color
 
 
-
 DEFAULT_COLOR_LEVEL = 10
 
 
@@ -15,8 +14,8 @@ class ChooseColorForm(forms.Form):
     color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color(), queryset=None)
     color_level = forms.ChoiceField(choices=Diary.COLOR_LEVELS, initial=DEFAULT_COLOR_LEVEL)
 
-    def __init__(self, *args, **kwargs):
-        self.login_user = kwargs.pop('login_user', None)
+    def __init__(self, login_user=None, *args, **kwargs):
+        self.login_user = login_user
 
         if self.login_user is None:
             raise ValueError(_('the user argument is not given.'))
@@ -45,8 +44,8 @@ class ColorModelForm(forms.ModelForm):
         model = Color
         fields = ['hex_color']
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
+    def __init__(self, user=None, *args, **kwargs):
+        self.user = user
 
         super().__init__(*args, **kwargs)
 
@@ -87,10 +86,10 @@ class DiaryModelForm(forms.ModelForm):
         model = Diary
         fields = ['context',]
 
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
-        self.color = kwargs.pop('color', None)
-        self.color_level = kwargs.pop('color_level', 0)
+    def __init__(self, user=None, color=None, color_level=0, *args, **kwargs):
+        self.user = user
+        self.color = color
+        self.color_level = color_level
 
         super().__init__(*args, **kwargs)
 
