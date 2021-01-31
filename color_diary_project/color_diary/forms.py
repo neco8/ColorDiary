@@ -42,7 +42,8 @@ class ChooseColorForm(forms.Form):
 class ColorModelForm(forms.ModelForm):
     class Meta:
         model = Color
-        fields = ['hex_color']
+        fields = ['users', 'hex_color']
+        widgets = {'users': forms.HiddenInput()}
 
     def __init__(self, user=None, *args, **kwargs):
         self.user = user
@@ -84,7 +85,12 @@ class ColorModelForm(forms.ModelForm):
 class DiaryModelForm(forms.ModelForm):
     class Meta:
         model = Diary
-        fields = ['context',]
+        fields = ['context', 'color', 'color_level']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'color': forms.HiddenInput(),
+            'color_level': forms.HiddenInput(),
+        }
 
     def __init__(self, user=None, color=None, color_level=0, *args, **kwargs):
         self.user = user
