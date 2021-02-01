@@ -67,8 +67,8 @@ class ColorModelForm(forms.ModelForm):
             raise ValidationError(_('the user argument is required.'))
 
     def save(self, commit=True):
-        # Colorは基本immutableで、変更する事ができない。Colorのhex_colorを変更した時は新たにオブジェクトを作るか
-        # 既存のオブジェクトをとってきて、現在ログインしているユーザーをとってくる。
+        # Colorは基本変更する事ができない。Colorのhex_colorを変更した時は新たにオブジェクトを作るか
+        # 既存のオブジェクトをとってきて、現在ログインしているユーザーと関連付ける。
         if self.instance.pk:
             previous_color = Color.objects.get(id=self.instance.pk)
             previous_color.users.remove(self.user)
