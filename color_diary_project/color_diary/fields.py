@@ -56,14 +56,18 @@ class HexColor:
             return self.hue > other.hue
         if self.saturation != other.saturation:
             return self.saturation > other.saturation
-        return self.value < other.value
+        if self.value != other.value:
+            return self.value < other.value
+        return self.alpha > other.alpha
 
     def __lt__(self, other):
         if self.hue != other.hue:
             return self.hue < other.hue
         if self.saturation != other.saturation:
             return self.saturation < other.saturation
-        return self.value > other.value
+        if self.value != other.value:
+            return self.value > other.value
+        return self.alpha < other.alpha
 
     def _calc_color(self):
         calc_red = int(self.red, 16) / 255
