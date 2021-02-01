@@ -2,7 +2,7 @@ from django.http import HttpResponseNotFound
 from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from ..utils import get_hashids
@@ -13,7 +13,7 @@ from ..models import Diary, Color
 class DeleteDiaryView(LoginRequiredMixin, View):
     # todo: 詳細画面に戻る時、入力していた内容を保持しておきたい。フォームの入力保持。これはvue.jsの自動保存にしよう。vue.jsで、削除ボタンが押された時に保存をサーバーへ移す。
     # todo: キャンセルボタンのテスト。複数の場所から行って戻る時はしっかりもとの所に戻れるかどうか
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
 
     def get(self, request, *args, **kwargs):
         try:
@@ -43,7 +43,7 @@ class DeleteDiaryView(LoginRequiredMixin, View):
 
 
 class DeleteColorView(LoginRequiredMixin, View):
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
 
     def get(self, request, *args, **kwargs):
         try:

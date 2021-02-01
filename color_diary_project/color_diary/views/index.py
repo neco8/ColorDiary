@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, When, Value, IntegerField
 
@@ -8,7 +9,7 @@ from ..models import Diary, Color
 
 class DiaryIndexView(LoginRequiredMixin, ListView):
     # todo: フィルタ機能をつける
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
     template_name = 'color_diary/diary_index.html'
     context_object_name = 'diary_list'
 
@@ -22,7 +23,7 @@ class DiaryIndexView(LoginRequiredMixin, ListView):
 
 
 class ColorIndexView(LoginRequiredMixin, ListView):
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
     template_name = 'color_diary/color_index.html'
     context_object_name = 'color_list'
 

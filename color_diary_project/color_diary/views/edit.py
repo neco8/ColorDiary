@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseNotFound
 from django.urls import reverse, reverse_lazy, resolve
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,7 +14,7 @@ CREATE = 0
 
 
 class EditDiaryView(LoginRequiredMixin, View):
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
 
     def get(self, request, *args, **kwargs):
         if 'color_id' not in request.session or 'color_level' not in request.session:

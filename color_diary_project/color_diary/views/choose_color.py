@@ -1,5 +1,6 @@
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,7 +12,7 @@ from .edit import CREATE
 
 
 class ChooseColorView(LoginRequiredMixin, View):
-    login_url = '/color-diary/login/'
+    login_url = reverse_lazy('color_diary:login')
 
     def get(self, request, *args, **kwargs):
         # 日記新規作成か、日記編集かを調べる。
