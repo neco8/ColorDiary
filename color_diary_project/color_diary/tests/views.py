@@ -245,6 +245,7 @@ class DeleteColorViewTests(TestCase):
         self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         self.user2_color = Color.objects.create(hex_color=parse_hex_color('00ff00'))
         self.user2_color.users.add(self.user2)
+        self.user_color.users.add(self.user2)
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
@@ -405,35 +406,62 @@ class EditDiaryViewTests(TestCase):
 
 
 class EditColorViewTests(TestCase):
-# todo: データベースに変更があるものはリダイレクトされるか確認する
-# todo: 将来的にカラーピッカーを追加する
-# todo: 操作できるのは自分のユーザーだけ
-# todo: デフォルトカラーのurlだったら色一覧画面にリダイレクト
-#まず色一覧画面が表示される
-#色一覧画面のなかで追加ボタンがある
-#追加ボタンもしくは色編集を押すとこの画面に行く
-#instanceがあるならそれを持ってきてcolor_codeを入力する
-#ないなら新規で作る。
+    # todo: データベースに変更があるものはリダイレクトされるか確認する
+    # todo: 将来的にカラーピッカーを追加する
     def setUp(self) -> None:
-        pass
+        self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.default_color = Color.get_default_color()
+        self.user_color1 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
+        self.user_color1.users.add(self.user)
 
-    def test_choose_color_view_with_not_login_user(self):
-        self.client.logout()
-        hash_id = get_hashids().encode(0)
-        choose_color_url = reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id})
-        response_before_login = self.client.get(choose_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
-        self.assertRedirects(response_before_login, login_url)
+        self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
+        self.user2_color1 = Color.objects.create(hex_color=parse_hex_color('00ff00'))
+        self.user2_color1.users.add(self.user2)
+
+        self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
+
     def test_edit_color_view_with_not_login_user(self):
-        pass
+        self.client.logout()
+        hash_id = get_hashids().encode(CREATE)
+        edit_color_url = reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id})
+        response_before_login = self.client.get(edit_color_url)
+        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={edit_color_url}'
+        self.assertRedirects(response_before_login, login_url)
 
-    def test_create_color(self):
-        # しっかり色編集画面カラーピッカーが表示されるかどうか
-        pass
+    def test_get_return_404_when_editing_default_color(self):
+        hash_id = get_hashids().encode(self.default_color.pk)
+        response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
+        self.assertEqual(response.status_code, 404)
 
-    def test_edit_color(self):
-        # しっかり以前作った色が表示されるかどうか
-        pass
+    def test_post_return_404_when_editing_default_color(self):
+        hash_id = get_hashids().encode(self.default_color.pk)
+        response = self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={'hex_color': 'f8f8f8'})
+        self.assertEqual(response.status_code, 404)
+
+    def test_initial_hex_color_with_get_when_creating_color(self):
+        hash_id = get_hashids().encode(CREATE)
+        response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
+        self.assertContains(response, '000000')
+
+    def test_hex_color_with_get_when_editing_color(self):
+        hash_id = get_hashids().encode(self.user_color1.pk)
+        response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
+        self.assertContains(response, 'FF0000')
+
+    def test_post_with_valid_hex_color(self):
+        hash_id = get_hashids().encode(self.user_color1.pk)
+        self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={
+            'hex_color': '00ff00'
+        })
+        self.assertEqual(self.user2_color1.users.all().count(), 2)
+        self.assertEqual(self.user_color1.users.all().count(), 0)
+
+    def test_post_with_invalid_hex_color(self):
+        hash_id = get_hashids().encode(self.user_color1.pk)
+        response = self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={
+            'hex_color': 'zzzzzzzz'
+        })
+        self.assertContains(response, 'error')
 
 
 class DiaryIndexViewTests(TestCase):
