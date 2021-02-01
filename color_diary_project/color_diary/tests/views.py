@@ -240,7 +240,8 @@ class DeleteColorViewTests(TestCase):
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user_color = Color.objects.create(hex_color=parse_hex_color('ff0000'))
-        self.user_color.users.add(self.user)
+        self.user_color2 = Color.objects.create(hex_color=parse_hex_color('0000ff'))
+        self.user.colors.add(self.user_color, self.user_color2)
 
         self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         self.user2_color = Color.objects.create(hex_color=parse_hex_color('00ff00'))
@@ -282,6 +283,11 @@ class DeleteColorViewTests(TestCase):
     def test_unable_to_encode_invalid_color_hash_id_and_return_404(self):
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': 'soMEthingOFHOgehoGEhoge'}))
         self.assertEqual(response.status_code, 404)
+
+    def test_delete_color_that_belongs_to_one_user(self):
+        hash_id = get_hashids().encode(self.user_color2.pk)
+        self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
+        self.assertEqual(Color.objects.filter(hex_color=parse_hex_color('0000ff')).count(), 0)
 
 
 class EditDiaryViewTests(TestCase):

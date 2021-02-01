@@ -69,4 +69,6 @@ class DeleteColorView(LoginRequiredMixin, View):
             return HttpResponseNotFound(_('不正なIDです。'))
 
         color.users.remove(request.user)
+        if color.users.all().count() == 0:
+            color.delete()
         return redirect(reverse('color_diary:color-index'))
