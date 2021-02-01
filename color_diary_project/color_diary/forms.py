@@ -42,8 +42,7 @@ class ChooseColorForm(forms.Form):
 class ColorModelForm(forms.ModelForm):
     class Meta:
         model = Color
-        fields = ['users', 'hex_color']
-        widgets = {'users': forms.HiddenInput()}
+        fields = ['hex_color',]
 
     def __init__(self, user=None, *args, **kwargs):
         self.user = user
@@ -85,12 +84,7 @@ class ColorModelForm(forms.ModelForm):
 class DiaryModelForm(forms.ModelForm):
     class Meta:
         model = Diary
-        fields = ['context', 'color', 'color_level']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'color': forms.HiddenInput(),
-            'color_level': forms.HiddenInput(),
-        }
+        fields = ['context',]
 
     def __init__(self, user=None, color=None, color_level=0, *args, **kwargs):
         self.user = user
@@ -111,7 +105,7 @@ class DiaryModelForm(forms.ModelForm):
         if self.color_level == 0:
             raise ValidationError(_('the color_level argument is required.'))
 
-        if self.color.users.filter(id=self.user.id).count() == 0:
+        if self.color.users.filter(id=self.user.pk).count() == 0:
             raise ValidationError(_("this is invalid color. you don't have this color."))
 
 
