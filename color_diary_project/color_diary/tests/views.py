@@ -1,12 +1,14 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME, authenticate
+from django.utils import timezone
 
 from .models import Diary, Color
 from .fields import parse_hex_color
 from .constant import *
 from ..utils import get_hashids
 from ..forms import DEFAULT_COLOR_LEVEL
+from ..views import CREATE
 
 
 class LoginViewTests(TestCase):
@@ -282,35 +284,124 @@ class DeleteColorViewTests(TestCase):
 
 
 class EditDiaryViewTests(TestCase):
-# todo: データベースに変更があるものはリダイレクトされるか確認する
 # todo: 自動保存されるかどうか。恐らくvue.jsの方で仕組みを作る事になる
-# todo: 操作できるのは自分のユーザーだけ
-#まず日記一覧画面がある
-#そして色選択画面がある。編集か追加に限らない。
-#色選択画面で色とレベルを送信したら、それをこのviewで受け取る
-#色とレベルをinstanceの中に入れて、context空で表示する
-#contextを編集して、送信ボタンを押せば日記を作成、保存する
-#そしたら日記一覧画面に戻る
     def setUp(self) -> None:
-        pass
+        self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.user_color1 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
+        self.user.colors.add(self.user_color1)
 
-    def test_choose_color_view_with_not_login_user(self):
-        self.client.logout()
-        hash_id = get_hashids().encode(0)
-        choose_color_url = reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id})
-        response_before_login = self.client.get(choose_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
-        self.assertRedirects(response_before_login, login_url)
+        self.diary_user1 = Diary.objects.create(user=self.user, color=self.user_color1, color_level=6, context=CONTEXT)
+
+        self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
+
+    def test_redirect_to_choose_color_view_when_no_session_data(self):
+        hash_id = get_hashids().encode(CREATE)
+        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        self.assertRedirects(response, reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
+
     def test_edit_diary_view_with_not_login_user(self):
-        pass
+        self.client.logout()
+        hash_id = get_hashids().encode(CREATE)
+        edit_diary_url = reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id})
+        response_before_login = self.client.get(edit_diary_url)
+        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={edit_diary_url}'
+        self.assertRedirects(response_before_login, login_url)
 
     def test_create_diary(self):
-        # しっかり色編集画面カラーピッカーが表示されるかどうか
-        pass
+        hash_id = get_hashids().encode(CREATE)
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        form = response.context['form']
+        self.assertFalse(form.is_bound)
 
     def test_edit_diary(self):
-        # しっかり以前作った日記が表示されるかどうか
-        pass
+        hash_id = get_hashids().encode(self.diary_user1.pk)
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        self.assertContains(response, self.diary_user1.context)
+
+    def test_save(self):
+        hash_id = get_hashids().encode(CREATE)
+        now = timezone.now()
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}), data={
+            'context': 'this is saving context.'
+        })
+        diary = Diary.objects.all(user=self.user).order_by('-created_at')[0]
+        self.assertEqual(diary.user, self.user)
+        self.assertEqual(diary.color, self.user_color1)
+        self.assertEqual(diary.color_level, 3)
+        self.assertTrue(now - diary.created_at < timezone.timedelta(seconds=1))
+        self.assertTrue(now - diary.updated_at < timezone.timedelta(seconds=1))
+        self.assertEqual(diary.context, 'this is saving context.')
+
+    def test_redirect_to_diary_index_view_after_saving_object(self):
+        hash_id = get_hashids().encode(self.diary_user1.pk)
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}), data={
+            'context': CONTEXT,
+        })
+        self.assertRedirects(response, reverse('color_diary:diary-index'))
+
+    def test_get_return_http_404_when_given_invalid_hash_id(self):
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': 'tekitounaMOJIretsu'}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_return_http_404_when_given_invalid_hash_id(self):
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': 'tekitounaMOJIretsu'}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_return_http_404_when_given_invalid_diary_id(self):
+        hash_id = get_hashids().encode(987315937)
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_return_http_404_when_given_invalid_diary_id(self):
+        hash_id = get_hashids().encode(987315937)
+
+        session = self.client.session
+        session['color_id'] = self.user_color1.pk
+        session['color_level'] = 3
+        session.save()
+
+        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        self.assertEqual(response.status_code, 404)
 
 
 class EditColorViewTests(TestCase):
@@ -337,11 +428,11 @@ class EditColorViewTests(TestCase):
         pass
 
     def test_create_color(self):
-        # しっかり空日記、時間があっている日記が表示されるかどうか
+        # しっかり色編集画面カラーピッカーが表示されるかどうか
         pass
 
     def test_edit_color(self):
-        # しっかり以前作った日記が表示されるかどうか
+        # しっかり以前作った色が表示されるかどうか
         pass
 
 
@@ -370,7 +461,6 @@ class DiaryIndexViewTests(TestCase):
     def test_two_diaries(self):
         response = self.client.get(reverse('color_diary:diary-index'))
         self.assertQuerysetEqual(response.context['diary_list'], [f'<Diary: Diary object ({self.new_diary.pk})>', f'<Diary: Diary object ({self.old_diary.pk})>'])
-        # order created_at
 
     def test_older_one_update(self):
         response = self.client.get(reverse('color_diary:diary-index'))
@@ -380,9 +470,9 @@ class DiaryIndexViewTests(TestCase):
 
 class ColorIndexViewTests(TestCase):
     def setUp(self) -> None:
-        # 赤から緑から青 100の位
-        # 彩度高い方が大きい 10の位
-        # 黒の方が大きい 1の位
+        # 赤から緑から青
+        # 彩度高い方が大きい
+        # 黒の方が大きい
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user_color4 = Color.objects.create(hex_color=parse_hex_color('e60000')) # より黒い
         self.user_color3 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
@@ -399,7 +489,6 @@ class ColorIndexViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    # todo: 操作できるのは自分の色だけ
     def test_color_index_view_with_not_login_user(self):
         self.client.logout()
         color_index_url = reverse('color_diary:color-index')
