@@ -140,14 +140,14 @@ class ChooseColorViewTests(TestCase):
         self.assertContains(response, DEFAULT_COLOR_LEVEL)
         self.assertContains(response, '#FFFFFF')
 
-    def test_choose_color_post_when_creating_diary(self):
+    def test_choose_color_post_save_session_and_redirect_to_edit_diary_when_creating_diary(self):
         hash_id = get_hashids().encode(0)
         response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
             'color': self.red.pk,
             'color_level': 5,
         })
-        self.assertEqual(response.client.session['color_id'], self.red.pk)
-        self.assertEqual(response.client.session['color_level'], '5')
+        self.assertEqual(self.client.session['color_id'], self.red.pk)
+        self.assertEqual(self.client.session['color_level'], '5')
         self.assertRedirects(response, reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
 
     def test_choose_color_get_when_editing_diary(self):
@@ -156,14 +156,14 @@ class ChooseColorViewTests(TestCase):
         self.assertContains(response, self.diary.color_level)
         self.assertContains(response, self.diary.color.hex_color)
 
-    def test_choose_color_post_when_editing_diary(self):
+    def test_choose_color_post_save_session_and_redirect_to_edit_diary_when_editing_diary(self):
         hash_id = get_hashids().encode(self.diary.pk)
         response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
             'color': self.green.pk,
             'color_level': 4,
         })
-        self.assertEqual(response.client.session['color_id'], self.green.pk)
-        self.assertEqual(response.client.session['color_level'], '4')
+        self.assertEqual(self.client.session['color_id'], self.green.pk)
+        self.assertEqual(self.client.session['color_level'], '4')
         self.assertRedirects(response, reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
 
     def test_return_404_with_invalid_hashid(self):
