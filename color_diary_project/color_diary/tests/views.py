@@ -166,19 +166,19 @@ class ChooseColorViewTests(TestCase):
         self.assertEqual(response.client.session['color_level'], '4')
         self.assertRedirects(response, reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
 
-    def test_invalid_hashid(self):
-        with self.assertRaisesMessage(ValueError, expected_message='invalid diary hash id.'):
-            self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': 'something389725hogehoge'}))
+    def test_return_404_with_invalid_hashid(self):
+        response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': 'something389725hogehoge'}))
+        self.assertEqual(response.status_code, 404)
 
-    def test_invalid_id(self):
+    def test_return_404_with_invalid_id(self):
         hash_id = get_hashids().encode(2111549857857)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:diary-index'))
+        self.assertEqual(response.status_code, 404)
 
-    def test_diary_id_of_other_user(self):
+    def test_return_404_with_diary_id_of_other_user(self):
         hash_id = get_hashids().encode(self.diary_user2.pk)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:diary-index'))
+        self.assertEqual(response.status_code, 404)
 
 
 
@@ -216,24 +216,24 @@ class DeleteDiaryViewTests(TestCase):
         with self.assertRaises(Diary.DoesNotExist):
             my_diary = Diary.objects.get(id=my_diary_pk, user=self.user)
 
-    def test_cannot_delete_diary_of_other_user_and_redirect_to_diary_index(self):
+    def test_cannot_delete_diary_of_other_user_and_return_404(self):
         hash_id = get_hashids().encode(self.diary_of_user2.pk)
         response = self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:diary-index'))
+        self.assertEqual(response.status_code, 404)
 
-    def test_cannot_delete_diary_which_does_not_exist_and_redirect_to_diary_index(self):
+    def test_cannot_delete_diary_which_does_not_exist_and_return_404(self):
         hash_id = get_hashids().encode(15875091750987325)
         response = self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:diary-index'))
+        self.assertEqual(response.status_code, 404)
 
     def test_contains_delete_string(self):
         hash_id = get_hashids().encode(self.diary.pk)
         response = self.client.get(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
         self.assertContains(response, '完全に削除しますか？')
 
-    def test_unable_to_encode_invalid_diary_hash_id(self):
-        with self.assertRaisesMessage(ValueError, expected_message='invalid diary hash id.'):
-            self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': 'somethingOFhoGeHOGe'}))
+    def test_unable_to_encode_invalid_diary_hash_id_and_return_404(self):
+        response = self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': 'somethingOFhoGeHOGe'}))
+        self.assertEqual(response.status_code, 404)
 
 
 class DeleteColorViewTests(TestCase):
@@ -267,20 +267,20 @@ class DeleteColorViewTests(TestCase):
         self.assertEqual(Color.objects.filter(id=self.user_color.pk).count(), 1)
         self.assertEqual(self.user.colors.filter(id=self.user_color.pk).count(), 0)
 
-    def test_cannot_delete_color_of_other_user_and_redirect_to_color_index(self):
+    def test_cannot_delete_color_of_other_user_and_return_404(self):
         hash_id = get_hashids().encode(self.user2_color.pk)
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:color-index'))
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(self.user2.colors.filter(id=self.user2_color.pk).count(), 1)
 
-    def test_cannot_delete_color_which_does_not_exist_and_redirect_to_color_index(self):
+    def test_cannot_delete_color_which_does_not_exist_and_return_404(self):
         hash_id = get_hashids().encode(195701735187)
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:color-index'))
+        self.assertEqual(response.status_code, 404)
 
-    def test_unable_to_encode_invalid_color_hash_id(self):
-        with self.assertRaisesMessage(ValueError, expected_message='invalid color hash id.'):
-            self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': 'soMEthingOFHOgehoGEhoge'}))
+    def test_unable_to_encode_invalid_color_hash_id_and_return_404(self):
+        response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': 'soMEthingOFHOgehoGEhoge'}))
+        self.assertEqual(response.status_code, 404)
 
 
 class EditDiaryViewTests(TestCase):

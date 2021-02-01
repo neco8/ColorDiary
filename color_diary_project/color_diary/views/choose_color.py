@@ -1,3 +1,4 @@
+from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import View
@@ -19,7 +20,7 @@ class ChooseColorView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs.get('diary_hash_id'))[0]
         except:
-            raise ValueError(_('invalid diary hash id.'))
+            return HttpResponseNotFound(_('不正なURLです。'))
 
         if diary_id == CREATE:
             self.form = ChooseColorForm(login_user=request.user)
@@ -27,7 +28,7 @@ class ChooseColorView(LoginRequiredMixin, View):
             try:
                 diary = Diary.objects.get(id=diary_id, user=request.user)
             except Diary.DoesNotExist:
-                return redirect('color_diary:diary-index')
+                return HttpResponseNotFound(_('不正なIDです。'))
 
             self.form = ChooseColorForm(login_user=request.user, initial={
                 'color': diary.color.pk,
