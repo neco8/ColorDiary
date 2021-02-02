@@ -456,6 +456,11 @@ class EditColorViewTests(TestCase):
 
     def test_post_with_valid_hex_color(self):
         hash_id = get_hashids().encode(self.user_color1.pk)
+
+        session = self.client.session
+        session['previous_url'] = reverse('color_diary:diary-index')
+        session.save()
+
         self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={
             'hex_color': '00ff00'
         })

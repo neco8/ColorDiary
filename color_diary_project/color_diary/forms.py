@@ -60,6 +60,10 @@ class ColorModelForm(forms.ModelForm):
         cleaned_data = self.cleaned_data['hex_color']
         if len(cleaned_data) > 6:
             raise ValidationError(_('hex color code is too long.'))
+        try:
+            parse_hex_color(cleaned_data)
+        except ValueError as err:
+            raise ValidationError(_(str(err)))
         return cleaned_data
 
     def clean(self):
