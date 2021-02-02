@@ -1,16 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <a href="{{ previous_url }}">キャンセル。ここには戻る実装が追加される</a>
-<!--#そして進んだら、確認のボタンが2つ。完全に削除しますか？
-#キャンセル 削除!!!!!!!!!!!!!!!!!!!!!!!!!!(赤背景)-->
-    <form action="{{ request.get_full_path_info }}" method="post">
-        {% csrf_token %}
-        <input type="submit" value="削除">
-    </form>
-</body>
-</html>
+{% extends "color_diary/base.html" %}
+
+{% block title %}Color Diary - Delete Diary{% endblock %}
+
+{% block content %}
+    {% include "color_diary/delete_snippet.html" %}
+{% endblock %}

@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {{ form }}
-</body>
-</html>
+{% extends "color_diary/base.html" %}
+
+{% block title %}Color Diary - Edit Color{% endblock %}
+
+{% block content %}
+    <form action="{{ request.get_full_path_info }}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="送信">
+    </form>
+{% endblock %}

@@ -1,17 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "color_diary/base.html" %}
+
+{% block title %}Color Diary - Color Index{% endblock %}
+
+{% block content %}
     {% load encode %}
     {% for color in color_list %}
         {% if color == default_color %}
             {{ color }}
         {% else %}
-            <a href="{% url 'color_diary:edit-color' color.pk|encode %}">リンク</a>
+            <a href="{% url 'color_diary:edit-color' color.pk|encode %}">{{ color }}</a>
         {% endif %}
     {% endfor %}
-</body>
-</html>
+{% endblock %}

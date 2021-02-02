@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "color_diary/base.html" %}
+
+{% block title %}Color Diary - Register{% endblock %}
+
+{% block content %}
     <form action="" method="post">
         {% csrf_token %}
         {{ form }}
         <input type="submit" value="登録">
     </form>
-</body>
-</html>
+{% endblock %}

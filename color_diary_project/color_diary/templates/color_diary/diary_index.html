@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "color_diary/base.html" %}
+
+{% block title %}Color Diary - Diary Index{% endblock %}
+
+{% block content %}
     {% load encode %}
     {% for diary in diary_list %}
-        {{ diary.created_at }}<br>
-        <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}"> {{ diary.context }}</a><br>
-        {{ diary.color }}<br>
+        <section>
+            {{ diary.created_at }}<br>
+            <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}"> {{ diary.context }}</a><br>
+            {{ diary.color }}-----{{ diary.color_level }}<br>
+        </section>
     {% endfor %}
 
-    <a href="{% url 'color_diary:edit-diary' diary_hash_id=CREATE|encode %}">新規作成</a>
-</body>
-</html>
+    <a href="{% url 'color_diary:edit-diary' diary_hash_id=CREATE|encode %}">Add Diary</a>
+{% endblock %}
