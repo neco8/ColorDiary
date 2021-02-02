@@ -38,6 +38,7 @@ class ChooseColorView(LoginRequiredMixin, View):
 
         return render(request, 'color_diary/choose_color.html', {
             'form': self.form,
+            'CREATE': CREATE,
         })
 
     def post(self, request, *args, **kwargs):
@@ -51,4 +52,5 @@ class ChooseColorView(LoginRequiredMixin, View):
         else:
             return render(request, 'color_diary/choose_color.html', {
                 'form': self.form,
+                'CREATE': CREATE,
             })

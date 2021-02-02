@@ -3,9 +3,11 @@
 {% block title %}Color Diary - Choose Color{% endblock %}
 
 {% block content %}
+    {% load encode %}
     <form action="{{ request.get_full_path_info }}" method="post">
         {% csrf_token %}
         {{ form }}
+        <a href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a><br>
         <input type="submit" value="Next">
     </form>
 {% endblock %}
