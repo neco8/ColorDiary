@@ -7,10 +7,12 @@
     {% for diary in diary_list %}
         <section>
             {{ diary.created_at }}<br>
-            <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}"> {{ diary.context }}</a><br>
-            {{ diary.color }}-----{{ diary.color_level }}<br>
+            <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context }}</a><br>
+            {{ diary.color }}-----{{ diary.color_level }}
+            <a href="{% url 'color_diary:delete-diary' diary_hash_id=diary.pk|encode %}">Delete</a><br>
         </section>
     {% endfor %}
 
-    <a href="{% url 'color_diary:edit-diary' diary_hash_id=CREATE|encode %}">Add Diary</a>
+    <a href="{% url 'color_diary:edit-diary' diary_hash_id=CREATE|encode %}">Add Diary</a><br>
+    <a href="{% url 'color_diary:color-index' %}">Colors</a>
 {% endblock %}

@@ -6,9 +6,11 @@
     {% load encode %}
     {% for color in color_list %}
         {% if color == default_color %}
-            {{ color }}
+            {{ color }}<br>
         {% else %}
-            <a href="{% url 'color_diary:edit-color' color.pk|encode %}">{{ color }}</a>
+            <a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">{{ color }}</a>
+            <a href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a><br>
         {% endif %}
     {% endfor %}
+    <a href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a>
 {% endblock %}
