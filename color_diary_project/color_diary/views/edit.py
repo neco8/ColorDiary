@@ -90,6 +90,7 @@ class EditColorView(LoginRequiredMixin, View):
                 return HttpResponseNotFound('不正なIDです。')
 
             self.form = ColorModelForm(user=request.user, instance=color)
+        request.session['previous_url'] = get_previous_url(request)
         return render(request, 'color_diary/edit_color.html', {'form': self.form})
 
     def post(self, request, *args, **kwargs):
@@ -111,8 +112,8 @@ class EditColorView(LoginRequiredMixin, View):
 
         if self.form.is_valid():
             self.form.save()
-            previous_url = get_previous_url(request)
-            if resolve(previous_url).url_name == 'color_diary:choose-color':
+            previous_url = request.session.pop('previous_url')
+            if resolve(previous_url).url_name == 'choose-color':
                 return redirect(previous_url)
             return redirect('color_diary:color-index')
 
