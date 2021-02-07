@@ -3,9 +3,13 @@
 {% block title %}Color Diary - Edit Color{% endblock %}
 
 {% block content %}
+    {% load encode %}
     <form action="{{ request.get_full_path_info }}" method="post">
         {% csrf_token %}
         {{ form }}
-        <input type="submit" value="送信">
+        <input class="button" type="submit" value="送信">
     </form>
+    {% if form.instance.pk %}
+        <a class="button-delete" href="{% url 'color_diary:delete-color' color_hash_id=form.instance.pk|encode %}">削除する</a>
+    {% endif %}
 {% endblock %}

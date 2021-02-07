@@ -1,6 +1,6 @@
 完全に削除しますか？<br>
-<a href="{{ previous_url }}">Cancel</a>
+<a class="button-cancel" href="{{ previous_url }}">Cancel</a>
 <form action="{{ request.get_full_path_info }}" method="post">
     {% csrf_token %}
-    <input type="submit" value="Delete">
+    <input class="button-delete" type="submit" value="Delete">
 </form>

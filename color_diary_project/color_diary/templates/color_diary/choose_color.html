@@ -6,8 +6,18 @@
     {% load encode %}
     <form action="{{ request.get_full_path_info }}" method="post">
         {% csrf_token %}
-        {{ form }}
-        <a href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a><br>
-        <input type="submit" value="Next">
+        <div class="colorContainer">
+            {% for radio in form.color %}
+                <label class="colorContent-select" for="{{ radio.id_for_label }}">
+                    {{ radio.choice_label }}<!-- todo: 後でこのラベルを消し、色だけで選択できるようにする -->
+                    <span class="undecoratedRadio">{{ radio.tag }}</span>
+                </label>
+            {% endfor %}
+            <a class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a><!-- todo: このadd colorも画像に変換する -->
+        </div>
+
+        {{ form.color_level }}
+        <!--<vue-slider></vue-slider> todo: 後でvueを追加する-->
+        <input class="button" type="submit" value="Next">
     </form>
 {% endblock %}

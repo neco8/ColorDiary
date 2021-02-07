@@ -1,17 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
+    {% load static %}
+    <link type="text/css" rel="stylesheet" href="{% static 'color_diary/css/style.css' %}">
     <meta charset="UTF-8">
     <title>{% block title %}Color Diary{% endblock %}</title>
+    <meta name="description" content="感情に対する客観性を鍛えて、冷静さを手に入れるための日記">
+    <link rel="icon" href=""> <!--todo: 後でやる-->
 </head>
 <body>
-
-<a href="{% url 'color_diary:logout' %}">Logout</a>
-<a href="{% url 'color_diary:diary-index' %}">Top</a>
-<div id="content">
-    {% block content %}
-    {% endblock %}
-</div>
-
+    <div id="app">
+        <a href="{% url 'color_diary:logout' %}">Logout</a>
+        <a href="{% url 'color_diary:diary-index' %}">Top</a>
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.js"></script>
+    <script>
+        {% block script %}
+        {% endblock %}
+    </script>
 </body>
 </html>

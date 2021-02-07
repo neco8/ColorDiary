@@ -3,16 +3,17 @@
 {% block title %}Color Diary - Diary Index{% endblock %}
 
 {% block content %}
-    {% load encode %}
-    {% for diary in diary_list %}
-        <section>
-            {{ diary.created_at }}<br>
-            <a href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context }}</a><br>
-            {{ diary.color }}-----{{ diary.color_level }}
-            <a href="{% url 'color_diary:delete-diary' diary_hash_id=diary.pk|encode %}">Delete</a><br>
-        </section>
-    {% endfor %}
-
-    <a href="{% url 'color_diary:edit-diary' diary_hash_id=CREATE|encode %}">Add Diary</a><br>
     <a href="{% url 'color_diary:color-index' %}">Colors</a>
+    {% load encode %}
+    <div id="diaryContainer">
+        {% for diary in diary_list %}
+            <div class="diaryItem">これ全体が編集画面へのリンク,背景が色の薄まったやつになる
+                <div class="date">{{ diary.created_at }}</div>
+                <a class="expandLink context" href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context }}</a>
+                <a class="inlink button-icon" href="{% url 'color_diary:delete-diary' diary_hash_id=diary.pk|encode %}">Delete</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <a class="button-icon" href="{% url 'color_diary:choose-color' diary_hash_id=CREATE|encode %}">Add Diary</a>
 {% endblock %}

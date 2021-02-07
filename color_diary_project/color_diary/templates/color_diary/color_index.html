@@ -4,13 +4,18 @@
 
 {% block content %}
     {% load encode %}
-    {% for color in color_list %}
-        {% if color == default_color %}
-            {{ color }}<br>
-        {% else %}
-            <a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">{{ color }}</a>
-            <a href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a><br>
-        {% endif %}
-    {% endfor %}
-    <a href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a>
-{% endblock %}
+    <div class="colorContainer">
+        {% for color in color_list %}
+            {% if color == default_color %}
+                <div class="colorContent-disable">{{ color }}</div><!--todo: 操作できないというクリックアイコンにする、カーソル-->
+            {% else %}
+                <div class="colorContent-button dropdown">
+                    <!-- todo: こう云うドロップダウンメニューを作る -->
+                    <a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">{{ color }}</a>
+                    <a href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <a class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a>
+    </div>
+{% ndblock %}
