@@ -12,12 +12,16 @@ from .models import User
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Include all the required field, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password1 = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password:'}))
+    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password again:'}))
 
     class Meta:
         model = User
         fields = ('email',) # fixme: 要素一つでlistを作れないような気がしたので、一応最後にコンマつけておいた。調べてもわからない。一旦飛ばす
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['placeholder'] = 'Email:'
 
     def clean_password2(self):
         # Check that the two password entries match.

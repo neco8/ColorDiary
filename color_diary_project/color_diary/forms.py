@@ -56,10 +56,12 @@ class ColorModelForm(forms.ModelForm):
         if self.instance.hex_color == parse_hex_color('ffffff0'):
             self.fields['hex_color'].disabled = True
 
+        self.fields['hex_color'].widget.attrs['placeholder'] = 'Color Code:'
+
     def clean_hex_color(self):
         cleaned_data = self.cleaned_data['hex_color']
         if len(cleaned_data) > 6:
-            raise ValidationError(_('hex color code is too long.'))
+            raise ValidationError(_('Color code is too long.'))
         try:
             parse_hex_color(cleaned_data)
         except ValueError as err:
@@ -114,8 +116,12 @@ class DiaryModelForm(forms.ModelForm):
 
 
 class UserLoginForm(forms.ModelForm):
-    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password:'}))
 
     class Meta:
         model = User
         fields = ('email',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['placeholder'] = 'Email:'
