@@ -1,6 +1,6 @@
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.edit import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import Diary
 from ..forms import ChooseColorForm
 from ..utils import get_hashids
+from .utils import get_previous_url
 from .edit import CREATE
 
 
@@ -35,6 +36,11 @@ class ChooseColorView(LoginRequiredMixin, View):
                 'color': diary.color.pk,
                 'color_level': diary.color_level
             })
+
+        if request.session.get('color_id', None) and get_previous_url(request) == reverse('color_diary:edit-diary', kwargs={'diary_hash_id': get_hashids().encode(diary_id)}):
+            self.form.initial['color'] = int(request.session['color_id'])
+        if request.session.get('color_level', None) and get_previous_url(request) == reverse('color_diary:edit-diary', kwargs={'diary_hash_id': get_hashids().encode(diary_id)}):
+            self.form.initial['color_level'] = int(request.session['color_level'])
 
         return render(request, 'color_diary/choose_color.html', {
             'form': self.form,
