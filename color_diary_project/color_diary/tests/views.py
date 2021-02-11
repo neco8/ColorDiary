@@ -60,7 +60,7 @@ class LogoutViewTests(TestCase):
     def test_logout_redirect_to_welcome(self):
         response = self.client.get(reverse('color_diary:logout'))
         self.assertEqual(len(self.client.session.keys()), 0)
-        self.assertRedirects(response, reverse('color_diary:welcome'))
+        self.assertRedirects(response, reverse('color_diary:top'))
 
 
 class RegisterViewTests(TestCase):

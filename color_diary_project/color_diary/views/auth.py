@@ -36,7 +36,7 @@ class LoginView(View):
 
 def logout_view(request):
     logout(request)
-    return redirect('color_diary:welcome')
+    return redirect('color_diary:top')
 
 
 class RegisterView(CreateView):
