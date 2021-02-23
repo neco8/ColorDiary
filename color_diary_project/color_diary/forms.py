@@ -12,7 +12,15 @@ DEFAULT_COLOR_LEVEL = 10
 
 class ChooseColorForm(forms.Form):
     color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color(), queryset=None)
-    color_level = forms.ChoiceField(choices=Diary.COLOR_LEVELS, initial=DEFAULT_COLOR_LEVEL)
+    color_level = forms.IntegerField(
+        initial=DEFAULT_COLOR_LEVEL,
+        widget=forms.NumberInput(attrs={
+            'type': 'range',
+            'step': '1',
+            'min': '1',
+            'max': '10',
+            'value': f'{DEFAULT_COLOR_LEVEL}'
+        }))
 
     def __init__(self, login_user=None, *args, **kwargs):
         self.login_user = login_user
@@ -93,11 +101,11 @@ class DiaryModelForm(forms.ModelForm):
         fields = ['context',]
 
     def __init__(self, user=None, color=None, color_level=0, *args, **kwargs):
-        self.user = user
-        self.color = color
-        self.color_level = color_level
-
         super().__init__(*args, **kwargs)
+
+        self.user = user
+        self.color = color or self.instance.color
+        self.color_level = color_level or self.instance.color_level
 
         self.instance.user = self.user
         self.instance.color = self.color
