@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
+
 from . import User, Color
 
 
@@ -33,6 +35,6 @@ class Diary(models.Model):
     user = models.ForeignKey(User, related_name='diaries', related_query_name='diary', on_delete=models.CASCADE)
     color = models.ForeignKey(Color, related_name='diaries', related_query_name='diary', on_delete=models.SET(Color.get_default_color))
     color_level = models.PositiveSmallIntegerField(choices=COLOR_LEVELS, validators=[MinValueValidator(1), MaxValueValidator(10)])
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     context = models.TextField("diary's context", blank=True)
