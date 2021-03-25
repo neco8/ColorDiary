@@ -60,6 +60,8 @@ class ColorModelForm(forms.ModelForm):
         if self.instance.hex_color:
             hex_color = self.instance.hex_color
             self.initial['hex_color'] = f'{hex_color.red}{hex_color.green}{hex_color.blue}'
+        else:
+            self.initial['hex_color'] = '000000'
 
         if self.instance.hex_color == parse_hex_color('ffffff0'):
             self.fields['hex_color'].disabled = True
@@ -81,18 +83,21 @@ class ColorModelForm(forms.ModelForm):
             raise ValidationError(_('the user argument is required.'))
 
     def save(self, commit=True):
-        # Colorは基本変更する事ができない。Colorのhex_colorを変更した時は新たにオブジェクトを作るか
+        # Colorは変更する事ができない。Colorのhex_colorを変更した時は新たにオブジェクトを作るか
         # 既存のオブジェクトをとってきて、現在ログインしているユーザーと関連付ける。
-        if self.instance.pk:
-            previous_color = Color.objects.get(id=self.instance.pk)
-            previous_color.users.remove(self.user)
-
-            if previous_color.users.all().count() == 0:
-                previous_color.delete()
+        # また、変更以前の色を使っていた日記は、新しい色に新たに関連付けられる。
 
         hex_color = parse_hex_color(self.cleaned_data['hex_color'])
         new_color = Color.objects.create(hex_color=hex_color)
         new_color.users.add(self.user)
+
+        if self.instance.pk:
+            previous_color = Color.objects.get(id=self.instance.pk)
+            Diary.objects.filter(user=self.user, color=previous_color).update(color=new_color)
+            previous_color.users.remove(self.user)
+
+            if previous_color.users.all().count() == 0:
+                previous_color.delete()
 
 
 class DiaryModelForm(forms.ModelForm):
