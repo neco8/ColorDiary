@@ -30,7 +30,7 @@
             oldContext: `{{ form.instance.context }}`,
             color: '{{ form.instance.color }}'.split('-')[0],
             alpha: '{{ form.instance.color }}'.split('-')[1],
-            colorLevel: {{ form.instance.color_level }},
+            colorLevel: {{ form.instance.color_level|default:0 }},
             {% with diary_id=form.instance.pk|default:'0' %}
                 isColorChoosed: {% if request.session.color_choosed_diary_id == diary_id %}true{% else %}false{% endif %},
             {% endwith %}
