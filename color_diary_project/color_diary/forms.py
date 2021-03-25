@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import IntegerField, Case, When, Value
 
@@ -103,29 +104,44 @@ class ColorModelForm(forms.ModelForm):
 class DiaryModelForm(forms.ModelForm):
     class Meta:
         model = Diary
-        fields = ['context',]
+        fields = ['context', 'created_at', 'color', 'color_level']
 
-    def __init__(self, user=None, color=None, color_level=0, *args, **kwargs):
+    def __init__(self, user=None, color=None, color_level=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.user = user
-        self.color = color or self.instance.color
-        self.color_level = color_level or self.instance.color_level
+        self.instance.user = user
+        if color:
+            self.instance.color = color
+        if color_level:
+            self.instance.color_level = color_level
 
-        self.instance.user = self.user
-        self.instance.color = self.color
-        self.instance.color_level = self.color_level
+        # hiddenにしたフィールドに関しては、値が入っていない
+        self.fields['created_at'].widget = forms.HiddenInput()
+        try:
+            self.initial['color'] = self.instance.color.pk
+        except self.instance._meta.model.color.RelatedObjectDoesNotExist:
+            self.initial['color'] = None
+        self.fields['color'].widget = forms.HiddenInput()
+        if self.instance.color_level:
+            self.initial['color_level'] = self.instance.color_level
+        self.fields['color_level'].widget = forms.HiddenInput()
 
     def clean(self):
-        if self.user is None:
+        if self.instance.user is None:
             raise ValidationError(_('the user argument is required.'))
-        if self.color is None:
-            raise ValidationError(_('the color argument is required.'))
-        if self.color_level == 0:
-            raise ValidationError(_('the color_level argument is required.'))
 
-        if self.color.users.filter(id=self.user.pk).count() == 0:
+        if self.instance.color.users.filter(id=self.instance.user.pk).count() == 0:
             raise ValidationError(_("this is invalid color. you don't have this color."))
+
+    def save(self, commit=True):
+        # 自身で変更できるのは作成日時だけ。更新日時は変更できない。日記一覧では作成日時のみを表示する。
+        now = timezone.now()
+        if self.instance.created_at == '':
+            self.instance.created_at = now
+
+        if commit:
+            super().save(commit)
+        return self.instance
 
 
 class UserLoginForm(forms.ModelForm):
