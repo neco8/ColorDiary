@@ -1,24 +1,147 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
     {% load static %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'color_diary/css/all.min.css' %}">
     <link type="text/css" rel="stylesheet" href="{% static 'color_diary/css/style.css' %}">
-    <meta charset="UTF-8">
-    <title>{% block title %}Color Diary{% endblock %}</title>
-    <meta name="description" content="感情に対する客観性を鍛えて、冷静さを手に入れるための日記">
+
     <link rel="icon" href=""> <!--todo: 後でやる-->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@200&family=Noto+Sans+JP:wght@300&family=Philosopher:wght@700&family=Roboto:wght@100&family=Raleway:wght@500&family=Source+Sans+Pro:wght@300&family=Source+Sans+Pro:wght@400&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//typesquare.com/3/tsst/script/ja/typesquare.js?60556246272c4947b6141fa2ac1e02e5" charset="utf-8"></script>
+    <title>{% block title %}Emotebook.{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="感情に対する客観性を鍛えて、冷静さを手に入れるための日記">
 </head>
 <body>
     <div id="app">
-        <a href="{% url 'color_diary:logout' %}">Logout</a>
-        <a href="{% url 'color_diary:diary-index' %}">Top</a>
-        {% block content %}
-        {% endblock %}
+        <div id="header">
+            <div class="left">
+                <a class="top" href="{% url 'color_diary:top' %}">Emotebook.</a>
+            </div>
+
+            <div class="right">
+                {% block header_right %}{% endblock %}
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'color_diary:logout' %}">Log out</a>
+                {% else %}
+                    <a href="{% url 'color_diary:login' %}">Log in</a>
+                    <a href="{% url 'color_diary:register' %}">Sign up</a>
+                {% endif %}
+            </div>
+        </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="https://unpkg.com/vue@3.0.5/dist/vue.global.js"></script>
     <script>
-        {% block script %}
-        {% endblock %}
+        const app = Vue.createApp({
+            delimiters: ['${', '}'],
+            {% block data %}{% endblock %}
+            methods: {
+                zeroPadding(digit, string) {
+                    return ('0' * digit + string).slice(-1 * digit)
+                },
+                parseColor(colorCode) {
+                    colorCode = colorCode.replace('#', '')
+                    const red = parseInt(String(colorCode).slice(0, 2), 16)
+                    const green = parseInt(String(colorCode).slice(2, 4), 16)
+                    const blue = parseInt(String(colorCode).slice(4, 6), 16)
+                    return [red, green, blue]
+                },
+                calcColor(frontColorCode, backColorCode, frontAlpha){
+                    // カラーコードで渡す
+                    const [frontRed, frontGreen, frontBlue] = this.parseColor(frontColorCode)
+                    const [backRed, backGreen, backBlue] = this.parseColor(backColorCode)
+
+                    const red = Math.floor(backRed + (frontRed - backRed) * frontAlpha)
+                    const green = Math.floor(backGreen + (frontGreen - backGreen) * frontAlpha)
+                    const blue = Math.floor(backBlue + (frontBlue - backBlue) * frontAlpha)
+                    const colorCode = '#' + this.zeroPadding(2, red.toString(16)) + this.zeroPadding(2, green.toString(16)) + this.zeroPadding(2, blue.toString(16))
+                    return colorCode
+                },
+                backgroundColor(colorLabel) {
+                    const frontColor = colorLabel.split('-')[0].replace('#', '')
+                    const alpha = parseInt(colorLabel.split('-')[1], 10)
+                    const color = this.calcColor(frontColor, '#FFFFFF', alpha) /* todo: ここは背景色にする */
+
+                    return color
+                },
+                borderColor(backgroundColor) {
+                    // カラーコードで渡す
+                    backgroundColor = backgroundColor.replace('#', '')
+                    const alpha = 0.1
+                    const color = this.calcColor('#000000', backgroundColor, alpha) /*todo: ここは背景色にする 背景色によって枠線色を返る*/
+                    return color
+                },
+                fontColor(backgroundColor) {
+                    // カラーコードで渡す
+                    backgroundColor = backgroundColor.replace('#', '')
+                    calcBrightness = (red, green, blue) => {
+                        return (red * 299 + green * 587 + blue * 114) / 1000
+                    }
+                    const whiteBrightness = calcBrightness(255, 255, 255)
+                    const blackBrightness = calcBrightness(0, 0, 0)
+
+                    const backgroundColorBrightness = calcBrightness(...this.parseColor(backgroundColor))
+                    const whiteBrightnessDifference = Math.abs(backgroundColorBrightness - whiteBrightness)
+                    const blackBrightnessDifference = Math.abs(backgroundColorBrightness - blackBrightness)
+                    if(blackBrightnessDifference >= whiteBrightnessDifference) {
+                        return '#000000'
+                    } else {
+                        return '#FFFFFF'
+                    }
+                },
+                strftime(date, format) {
+                    // Y 0埋め4桁年
+                    // m 0埋め2桁月
+                    // d 0埋め2桁日
+                    // H 0埋め2桁時間-24時間フォーマット
+                    // i 0埋め2桁分
+                    // s 0埋め2桁秒
+
+                    format = format.replace(/Y/g, date.getFullYear())
+                    monthStr = String(date.getMonth() + 1)
+                    format = format.replace(/m/g, this.zeroPadding(2, monthStr))
+                    dateStr = String(date.getDate())
+                    format = format.replace(/d/g, this.zeroPadding(2, dateStr))
+                    hourStr = String(date.getHours())
+                    format = format.replace(/H/g, this.zeroPadding(2, hourStr))
+                    minuteStr = String(date.getMinutes())
+                    format = format.replace(/i/g, this.zeroPadding(2, minuteStr))
+                    secondStr = String(date.getSeconds())
+                    format = format.replace(/s/g, this.zeroPadding(2, secondStr))
+
+                    return format
+                },
+                dropdownMenuOnClickHandler(pk, dropdownMenu) {
+                    // dropdownMenuを、ホバーが離れても一定時間だけは表示させる
+                    this.onMenuVisibility(pk);
+
+                    const setVisibilityOffTimer = event => {
+                        let timer = 0;
+                        dropdownMenu.addEventListener('mouseenter', () => {
+                            clearTimeout(timer);
+                        });
+                        timer = setTimeout(() => {
+                            this.offMenuVisibility(pk);
+                            dropdownMenu.removeEventListener('mouseleave', setVisibilityOffTimer);
+                        }, 500);
+                    }
+
+                    dropdownMenu.addEventListener('mouseleave', setVisibilityOffTimer)
+                },
+                {% block methods %}{% endblock %}
+            },
+            {% block computed %}{% endblock %}
+            {% block mounted %}{% endblock %}
+            {% block created %}{% endblock %}
+        })
+        app.mount('#app')
     </script>
 </body>
 </html>
