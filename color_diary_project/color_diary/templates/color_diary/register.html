@@ -1,11 +1,20 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Register{% endblock %}
+{% block title %}Emotebook. - Register{% endblock %}
 
 {% block content %}
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input class="button" type="submit" value="登録">
-    </form>
+    <div id="register">
+        <form action="{{ request.get_full_path_info }}" method="post">
+            <div class="titleContainer">
+                <div id="title">CREATE ACOUNT</div>
+            </div>
+            <div class="formInput">
+                {% csrf_token %}
+                {{ form.email }}
+                {{ form.password1 }}
+                {{ form.password2 }}
+            </div>
+            <div class="wrapper"><input class="button" type="submit" value="Create"></div>
+        </form>
+    </div>
 {% endblock %}

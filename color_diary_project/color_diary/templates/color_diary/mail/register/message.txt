@@ -1,0 +1,8 @@
+{{ user.email }} 様
+
+Emotebook.をご利用いただき、誠にありがとうございます。
+
+以下のアドレスにアクセスする事で、すぐにご利用いただく事ができます。
+なお、こちらのURLの有効期限は30分となっております。期限を過ぎますと登録を完了できませんのでご注意ください。
+
+{{ protocol }}://{{ domain }}{% url 'color_diary:register-complete' token %}
