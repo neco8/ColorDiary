@@ -1,6 +1,8 @@
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -41,3 +43,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def email_user(self, subject, message):
+        send_mail(subject, message, from_email=getattr(settings, 'EMAIL_HOST_USER'), recipient_list=[self.email])
