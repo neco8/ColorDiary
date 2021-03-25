@@ -1,23 +1,63 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Choose Color{% endblock %}
+{% block title %}Emotebook.-Choose Color{% endblock %}
 
 {% block content %}
     {% load encode %}
-    <form action="{{ request.get_full_path_info }}" method="post">
-        {% csrf_token %}
-        <div class="colorContainer">
-            {% for radio in form.color %}
-                <label class="colorContent-select" for="{{ radio.id_for_label }}">
-                    {{ radio.choice_label }}<!-- todo: 後でこのラベルを消し、色だけで選択できるようにする -->
-                    <span class="undecoratedRadio">{{ radio.tag }}</span>
-                </label>
-            {% endfor %}
-            <a class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a><!-- todo: このadd colorも画像に変換する -->
-        </div>
+    <div id="chooseColor">
+        <form action="{{ request.get_full_path_info }}" method="post">
+            {% csrf_token %}
+            <div class="colorContainer">
+                {% for radio in form.color %}
+                    {{ radio.tag }}
+                    <label :style="{ 'background-color': backgroundColor('{{ radio.choice_label }}'), 'border-color': borderColor(backgroundColor('{{ radio.choice_label }}')) }" class="colorContent-select" for="{{ radio.id_for_label }}">
+                    </label>
+                {% endfor %}
+                <a :style="{ 'border-color': borderColor('FFFFFF'), 'color': borderColor('FFFFFF') }" class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}"><i class="fas fa-plus"></i></a>
+            </div>
 
-        {{ form.color_level }}
-        <!--<vue-slider></vue-slider> todo: 後でvueを追加する-->
-        <input class="button" type="submit" value="Next">
-    </form>
+            <div class="sliderWrapper">
+                <div class="sliderTrack"></div>
+                <input type="range" v-model="colorLevel" name="color_level" min="1" max="10" step="1" id="id_color_level" class="slider" required>
+                <div class="sliderLabelWrapper">
+                    <div class="sliderLabel">${ colorLevel }</div>
+                </div>
+            </div>
+            <input class="button" type="submit" value="Next >>">
+        </form>
+    </div>
+{% endblock %}
+
+{% block data %}
+    data() {
+        return {
+            colorLevel: {{ form.color_level.initial }},
+        }
+    },
+{% endblock %}
+
+{% block methods %}
+    showSliderValue(event) {
+        const slider = document.getElementsByClassName('slider')[0];
+        const sliderLabelWrapper = document.getElementsByClassName('sliderLabelWrapper')[0];
+        const sliderLabel = sliderLabelWrapper.getElementsByClassName('sliderLabel')[0];
+
+        const thumbSize = parseInt(window.getComputedStyle(slider).getPropertyValue('height'));
+        const ratio = (slider.value - slider.min) / (slider.max - slider.min);
+        const labelWidth = parseInt(window.getComputedStyle(sliderLabel).getPropertyValue('width'), 10);
+        const labelHeight = parseInt(window.getComputedStyle(sliderLabel).getPropertyValue('height'), 10);
+        const labelWrapperPadding = parseInt(window.getComputedStyle(sliderLabelWrapper).getPropertyValue('padding'), 10) * 2;
+
+        sliderLabel.style.left = `calc(${thumbSize / 2}px + ${ratio * 100}% - ${ratio * thumbSize}px - ${labelWidth / 2}px)`;
+        sliderLabelWrapper.style.height = labelWrapperPadding + labelHeight + 'px';
+    },
+{% endblock %}
+
+{% block mounted %}
+    mounted() {
+        const slider = document.getElementsByClassName('slider')[0];
+
+        window.addEventListener('DOMContentLoaded', this.showSliderValue, false);
+        slider.addEventListener('input', this.showSliderValue, false);
+    },
 {% endblock %}

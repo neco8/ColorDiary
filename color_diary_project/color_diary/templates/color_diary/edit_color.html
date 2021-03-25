@@ -1,15 +1,84 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Edit Color{% endblock %}
+{% block title %}Emotebook. - Edit Color{% endblock %}
 
 {% block content %}
-    {% load encode %}
-    <form action="{{ request.get_full_path_info }}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input class="button" type="submit" value="送信">
-    </form>
-    {% if form.instance.pk %}
-        <a class="button-delete" href="{% url 'color_diary:delete-color' color_hash_id=form.instance.pk|encode %}">削除する</a>
-    {% endif %}
+    <div id="editColor">
+        {% load encode %}
+        <form action="{{ request.get_full_path_info }}" method="post">
+            <!-- ここにカラーピッカーが入る -->
+            <div id="color_picker"></div>
+            <div id="color_picker_container"></div>
+            <div class="wrapper">
+                <span>#</span>
+                {% csrf_token %}
+                <input type="text" name="hex_color" placeholder="Color Code:" required id="id_hex_color" autocomplete="off" maxlength="6" pattern="[0-9a-fA-F]*" value="{{ form.initial.hex_color }}">
+                <div id="preview"></div>
+                {% if form.instance.pk %}
+                    <a id="delete" class="button-delete" href="{% url 'color_diary:delete-color' color_hash_id=form.instance.pk|encode %}">Delete</a>
+                {% endif %}
+                <input id="send" class="button" type="submit" value="Send">
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block mounted %}
+    mounted() {
+        const pickr = Pickr.create({
+            el: '#color_picker',
+            theme: 'classic',
+            lockOpacity: true,
+            showAlways: true,
+            autoReposition: false,
+            container: 'div#color_picker_container',
+            default: '#' + '{{ form.initial.hex_color }}',
+
+            components: {
+                preview: false,
+                opacity: false,
+                hue: true,
+
+                interaction: {
+                    hex: false,
+                    rgba: false,
+                    hsla: false,
+                    hsva: false,
+                    cmyk: false,
+                    input: false,
+                    clear: false,
+                    save: false,
+                },
+            },
+        });
+
+        const colorInput = document.getElementById('id_hex_color');
+        colorInput.addEventListener('input', event => {
+            pickr.setColor('#' + colorInput.value)
+        });
+
+        const preview = document.getElementById('preview');
+
+        pickr
+            .on('init', instance => {
+                const pickrApp = document.getElementsByClassName('pcr-app')[0];
+                pickrApp.style.top = '';
+                pickrApp.style.left = '';
+
+                const backgroundColor = instance.getColor().toHEXA().toString(0);
+                const borderColor = this.borderColor(backgroundColor);
+                preview.style.backgroundColor = backgroundColor;
+                preview.style.borderColor = borderColor;
+            })
+            .on('changestop', (source, instance) => {
+                const color = instance.getColor();
+                colorInput.value = color.toHEXA().toString(0).replace('#', '');
+            })
+            .on('change', (color, source, instance) => {
+                const backgroundColor = color.toHEXA().toString(0);
+                const borderColor = this.borderColor(backgroundColor);
+                preview.style.backgroundColor = backgroundColor;
+                preview.style.borderColor = borderColor;
+            })
+    }
 {% endblock %}

@@ -1,11 +1,360 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Edit Diary{% endblock %}
+{% block title %}Emotebook. - Edit Diary{% endblock %}
 
 {% block content %}
-    <form action="{{ request.get_full_path_info }}" method="post">
+    <form id="editDiary" action="{{ request.get_full_path_info }}" method="post">
         {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="送信"><!-- todo: 後で自動保存できるようにする indexeddbを使う ユーザーがページを離れる、などする時に保存-->
+        <textarea v-model="context" name="context" id="id_context" cols="40" rows="10" placeholder="今の気持ちを全て吐き出してしまいましょう……"></textarea>
+        {{ form.color }}
+        {{ form.color_level }}
+        {{ form.created_at }}
+        <input class="button" type="submit" value="Send">
+        {% load encode %}
+        <div class="wrapper">
+            <div id="color" :style="{ 'background-color': diaryBackgroundColor, 'border-color': borderColor(diaryBackgroundColor) }">
+                {% with diary_id=form.instance.pk|default:'0' %}
+                    <a id="chooseColorLink" href="{% url 'color_diary:choose-color' diary_hash_id=diary_id|encode %}"></a>
+                {% endwith %}
+            </div>
+        </div>
     </form>
+{% endblock %}
+
+{% block data %}
+    data() {
+        return {
+            second: 0,
+            timer_id: 0,
+            context: `{{ form.instance.context }}`,
+            oldContext: `{{ form.instance.context }}`,
+            color: '{{ form.instance.color }}'.split('-')[0],
+            alpha: '{{ form.instance.color }}'.split('-')[1],
+            colorLevel: {{ form.instance.color_level }},
+            {% with diary_id=form.instance.pk|default:'0' %}
+                isColorChoosed: {% if request.session.color_choosed_diary_id == diary_id %}true{% else %}false{% endif %},
+            {% endwith %}
+            dbName: 'emotebook',
+            version: 1,
+            diaryStoreName: 'diaries',
+            {% load addstr %}
+            {% with id_of_creation=0|addstr:request.user.pk %}
+                id: '{{ form.instance.pk|default:id_of_creation }}'
+            {% endwith %}
+        }
+    },
+{% endblock %}
+
+{% block methods %}
+    popData(storeName, id) {
+        return new Promise((resolve, reject) => {
+            let openRequest = indexedDB.open(this.dbName, this.version);
+
+            openRequest.onerror = function() {
+                reject('Error', openRequest.error);
+            }
+
+            openRequest.onsuccess = function() {
+                let db = openRequest.result;
+                let transaction = db.transaction(storeName, 'readwrite');
+                let objectStore = transaction.objectStore(storeName);
+                let getRequest = objectStore.get(id);
+
+                getRequest.onsuccess = function() {
+                    let deleteRequest = objectStore.delete(id);
+                    deleteRequest.onsuccess = () => console.log('The data has been deleted.');
+
+                    let object = getRequest.result;
+                    if(object) console.log('The data has been retrieved.', getRequest.result);
+                    if(object) resolve(object);
+                    else reject(Error('The object was not found.'));
+                }
+                getRequest.onerror = function() {
+                    reject('Error', getRequest.error);
+                }
+            }
+        });
+    },
+    getData(storeName, id) {
+        return new Promise((resolve, reject) => {
+            let openRequest = indexedDB.open(this.dbName, this.version);
+
+            openRequest.onerror = function() {
+                reject('Error', openRequest.error);
+            }
+
+            openRequest.onsuccess = function() {
+                let db = openRequest.result;
+                let transaction = db.transaction(storeName, 'readwrite');
+                let objectStore = transaction.objectStore(storeName);
+                let getRequest = objectStore.get(id);
+
+                getRequest.onsuccess = function() {
+                    let object = getRequest.result;
+                    if(object) console.log('The data has been retrieved.', getRequest.result);
+                    if(object) resolve(object);
+                    else reject(Error('The object was not found.'));
+                }
+                getRequest.onerror = function() {
+                    reject('Error', getRequest.error);
+                }
+            }
+        });
+    },
+    putData(storeName, object) {
+        return new Promise((resolve, reject) => {
+            let openRequest = indexedDB.open(this.dbName, this.version);
+
+            openRequest.onerror = function() {
+                reject('Error', openRequest.error);
+            }
+
+            openRequest.onsuccess = function() {
+                let db = openRequest.result;
+                let transaction = db.transaction(storeName, 'readwrite');
+                let objectStore = transaction.objectStore(storeName);
+                let putRequest = objectStore.put(object);
+
+                putRequest.onsuccess = function() {
+                    resolve(putRequest.result);
+                }
+
+                putRequest.onerror = function() {
+                    reject('Error', putRequest.error);
+                }
+            }
+        });
+    },
+    deleteData(storeName, id) {
+        return new Promise((resolve, reject) => {
+            let openRequest = indexedDB.open(this.dbName, this.version);
+
+            openRequest.onerror = function() {
+                reject('Error', openRequest.error);
+            }
+
+            openRequest.onsuccess = function() {
+                let db = openRequest.result;
+                let transaction = db.transaction(storeName, 'readwrite');
+                let objectStore = transaction.objectStore(storeName);
+                let deleteRequest = objectStore.delete(id);
+
+                deleteRequest.onsuccess = function() {
+                    resolve('The data has been deleted.');
+                }
+                deleteRequest.onerror = function() {
+                    reject('Error', deleteRequest.error);
+                }
+            }
+        });
+    },
+    changeData(storeName, id, func) {
+        return new Promise((resolve, reject) => {
+            let openRequest = indexedDB.open(this.dbName, this.version);
+
+            openRequest.onerror = function() {
+                reject('Error', openRequest.error);
+            }
+
+            openRequest.onsuccess = function() {
+                let db = openRequest.result;
+                let transaction = db.transaction(storeName, 'readwrite');
+                let objectStore = transaction.objectStore(storeName);
+                let getRequest = objectStore.get(id);
+
+                getRequest.onerror = function() {
+                    reject('Error', getRequest.error);
+                }
+
+                getRequest.onsuccess = function() {
+                    let object = getRequest.result;
+                    object = func(object);
+                    let putRequest = objectStore.put(object);
+
+                    putRequest.onerror = function() {
+                        reject('Error', putRequest.error);
+                    }
+
+                    putRequest.onsuccess = function() {
+                        resolve(putRequest.result);
+                    }
+                }
+            }
+        });
+    },
+    get() {
+        $vm = this;
+        this.getData(this.diaryStoreName, $vm.id)
+            .then((response) => {
+                console.log(response);
+            })
+    },
+    delete() {
+        $vm = this;
+        this.deleteData(this.diaryStoreName, $vm.id)
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((reason) => {
+                console.error('Error', reason);
+            })
+    },
+    restore() {
+        $vm = this;
+        this.popData(this.diaryStoreName, $vm.id)
+            .then((diary) => {
+                const form = document.forms[0];
+                form.context.value = diary.context;
+                if('color' in diary) {
+                    form.color.value = diary.color;
+                }
+                if('colorLevel' in diary) {
+                    form.color_level.value = diary.colorLevel;
+                }
+                form.created_at.value = diary.createdAt;
+            })
+            .catch((reason) => {
+                if(reason.message == 'The object was not found.') {
+                    // 復元するものがない、かつインスタンスのcolorまたはcolor_levelがNoneであれば色選択へ遷移
+                    {% if form.instance.color is None or form.instance.color_level is None %}
+                        {% with diary_id=form.instance.pk|default:'0' %}
+                            window.location.href = "{% url 'color_diary:choose-color' diary_hash_id=diary_id|encode %}";
+                        {% endwith %}
+                    {% endif %}
+                } else {
+                    console.error('Error', reason);
+                }
+            });
+    },
+    save() {
+        const saveContext = this.context;
+        let diary = {
+            id: this.id,
+            createdAt: '{{ form.instance.created_at|date:'Y-m-d H:i:s'|default:'' }}' || this.strftime(new Date(), 'Y-m-d H:i:s'),
+            context: saveContext,
+            color: {{ form.instance.color.pk|default:form.color.value }},
+            colorLevel: {{ form.instance.color_level }}
+        };
+        this.putData(this.diaryStoreName, diary)
+            .then((response) => {
+                console.log('The data has been saved.', response);
+            })
+            .catch((reason) => {
+                console.error('Error', reason);
+            });
+    },
+    delay(func, ms) {
+        let timer = 0;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(func.bind(this, ...args), ms || 0);
+        }
+    },
+    formWarning(event) {
+        if (this.isEdited) {
+            event.preventDefault();
+            event.returnValue = '';
+        }
+    },
+    formFocus(element) {
+        const value = element.value;
+        element.focus();
+        element.value = value;
+    },
+    timer() {
+        const timer_id = setTimeout(() => {
+            if(this.second > 0) {
+                this.second -= 1
+                this.timer();
+            } else {
+                alert('time is over.')
+            }
+        }, 1000)
+        this.timer_id = timer_id;
+    },
+    stop() {
+        clearTimeout(this.timer_id);
+    }
+{% endblock %}
+
+{% block mounted %}
+    mounted() {
+        const form = document.forms[0];
+
+        let $vm = this;
+
+        // フォーム未保存警告
+        window.addEventListener('beforeunload', $vm.formWarning, false)
+        //const form = document.forms[0];
+        form.addEventListener('submit', (event) => {
+            window.removeEventListener('beforeunload', $vm.formWarning, false)
+        })
+
+        // データベース初期化
+        let openRequest = indexedDB.open($vm.dbName, $vm.version);
+        openRequest.onupgradeneeded = function() {
+            let db = openRequest.result;
+            if (!db.objectStoreNames.contains($vm.diaryStoreName)) {
+                let diaries = db.createObjectStore($vm.diaryStoreName, {keyPath: 'id'});
+                console.log('the object store was created.')
+            }
+        }
+
+        $vm.restore();
+        $vm.save();
+
+        // フォームの自動保存機能
+        const context = form.context;
+        context.addEventListener('keyup', $vm.delay(function() {
+            if($vm.isEdited) {
+                $vm.save();
+                console.log('keyup-save')
+            }
+        }, 1000));
+        setInterval(function() {
+            if($vm.isEdited) {
+                $vm.save();
+                console.log('auto-save');
+            }
+        }, 30000);
+        form.addEventListener('submit', (event) => {
+            this.delete();
+        })
+
+        // 自動フォーカス
+        this.formFocus(context);
+
+        // 色選択へ移動する時に、現時点で自動保存されている色とレベルを破棄する。
+        // このとき、復元したはずの色とレベルは消えるが、何度も色とレベルを変更する事はないと考え妥協。本当は、choose_colorとedit_diaryを2つのviewに分けずに
+        // fixme: 一つのviewにしてしまえば、2つのview間でのデータ共有の問題は起きないはず。完成させたら要リファクタリング。
+        const chooseColorLink = document.getElementById('chooseColorLink')
+        chooseColorLink.addEventListener('click', (event) => {
+            $vm = this;
+            this.changeData(this.diaryStoreName, $vm.id, (diary) => {
+                delete diary.color;
+                delete diary.colorLevel;
+                return diary
+            })
+                .then((response) => {
+                    console.log('The data has been changed.', response);
+                })
+                .catch((reason) => {
+                    console.error('Error', reason);
+                })
+        })
+    },
+{% endblock %}
+
+{% block computed %}
+    computed: {
+        isEdited() {
+            return (this.oldContext != this.context) || this.isColorChoosed
+        },
+        diaryBackgroundColor() {
+            const color = this.calcColor(this.color, '#FFFFFF', this.alpha);
+            const colorLevelAlpha = this.colorLevel / 10;
+            const backgroundColor = this.calcColor(color, '#FFFFFF', colorLevelAlpha);
+            return backgroundColor;
+        }
+    },
 {% endblock %}
