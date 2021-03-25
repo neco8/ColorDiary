@@ -1,8 +1,12 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Welcome{% endblock %}
+{% block title %}Emotebook. - Welcome{% endblock %}
 
 {% block content %}
-    <a href="{% url 'color_diary:login' %}">ログイン</a><br>
-    <a href="{% url 'color_diary:register' %}">新規登録</a>
+    <div id="welcome">
+        <div class="top">
+            <div id="title">Emote.</div>
+            <div id="discription">Express yourself, have a bird's eye.</div>
+        </div>
+    </div>
 {% endblock %}
