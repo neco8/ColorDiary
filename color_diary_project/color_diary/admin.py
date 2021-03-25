@@ -17,11 +17,16 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('email',) # fixme: 要素一つでlistを作れないような気がしたので、一応最後にコンマつけておいた。調べてもわからない。一旦飛ばす
+        fields = ('email',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs['placeholder'] = 'Email:'
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        User.objects.filter(email=email, is_active=False).delete()
+        return email
 
     def clean_password2(self):
         # Check that the two password entries match.
