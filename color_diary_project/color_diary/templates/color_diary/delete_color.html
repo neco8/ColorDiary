@@ -1,7 +1,15 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Delete Color{% endblock %}
+{% block title %}Emotebook. - Delete Color{% endblock %}
 
 {% block content %}
-    {% include "color_diary/delete_snippet.html" %}
+    <div id="deleteColor">
+        <div class="wrapper">
+            <div class="sentence">
+                <div class="object" :style="{ 'background-color': backgroundColor('{{ color }}')}"></div>
+                <span>完全に削除しますか？</span>
+            </div>
+            {% include "color_diary/delete_snippet.html" %}
+        </div>
+    </div>
 {% endblock %}
