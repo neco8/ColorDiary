@@ -7,7 +7,7 @@ register = template.Library()
 
 
 def encode(value):
-    return get_hashids().encode(value)
+    return get_hashids().encode(int(value))
 
 
 register.filter('encode', encode)
