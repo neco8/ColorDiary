@@ -1,5 +1,5 @@
 from django.http import HttpResponseNotFound
-from django.urls import reverse, reverse_lazy, resolve
+from django.urls import reverse_lazy, resolve
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
@@ -17,8 +17,7 @@ class EditDiaryView(LoginRequiredMixin, View):
     login_url = reverse_lazy('color_diary:login')
 
     def get(self, request, *args, **kwargs):
-        if 'color_id' not in request.session or 'color_level' not in request.session:
-            return redirect(reverse('color_diary:choose-color', kwargs={'diary_hash_id': kwargs['diary_hash_id']}))
+        # colorかcolor_levelがNoneのとき、このview関数後html描画時に色選択に遷移する。クライアント側で保存しておいた値を考慮して、edit_diary.htmlに実装
 
         try:
             diary_id = get_hashids().decode(kwargs['diary_hash_id'])[0]
@@ -26,19 +25,42 @@ class EditDiaryView(LoginRequiredMixin, View):
             return HttpResponseNotFound('そのURLは存在しません。')
 
         if diary_id == CREATE:
-            self.form = DiaryModelForm(user=request.user)
-        else: # 編集
+            # colorかcolor_levelがNoneのときでも、このviewを実行する可能性があるのでこの安全策は必要
+            color_id = int(request.session.get('color_id', 0))
+            color_level = int(request.session.get('color_level')) if 'color_level' in request.session else None
             try:
-                diary = Diary.objects.get(user=request.user, id=diary_id)
-            except Diary.DoesNotExist:
-                # todo: 404画面を作る
-                return HttpResponseNotFound('そのような日記は存在しません。')
-            self.form = DiaryModelForm(user=request.user, instance=diary)
-        return render(request, 'color_diary/edit_diary.html', {'form': self.form})
+                color = Color.objects.get(pk=color_id)
+            except Color.DoesNotExist:
+                color = None
+            form = DiaryModelForm(color=color, color_level=color_level, user=request.user)
+
+            return render(request, 'color_diary/edit_diary.html', {
+                'form': form,
+            })
+
+        # 日記編集
+        try:
+            diary = Diary.objects.get(user=request.user, id=diary_id)
+        except Diary.DoesNotExist:
+            # todo: 404画面を作る
+            return HttpResponseNotFound('そのような日記は存在しません。')
+
+        if request.session.get('color_choosed_diary_id') != diary_id:
+            form = DiaryModelForm(user=request.user, instance=diary)
+            return render(request, 'color_diary/edit_diary.html', {
+                'form': form,
+            })
+
+        color_id = int(request.session.get('color_id', diary.color.pk))
+        color_level = int(request.session.get('color_level', diary.color_level))
+        form = DiaryModelForm(color=Color.objects.get(pk=color_id), color_level=color_level, user=request.user, instance=diary)
+        return render(request, 'color_diary/edit_diary.html', {
+            'form': form,
+        })
 
     def post(self, request, *args, **kwargs):
-        color = Color.objects.get(users=request.user, id=int(request.session.pop('color_id')))
-        color_level = int(request.session.pop('color_level'))
+        color = Color.objects.get(users=request.user, id=int(request.POST.get('color')))
+        color_level = int(request.POST.get('color_level'))
 
         try:
             diary_id = get_hashids().decode(kwargs['diary_hash_id'])[0]
@@ -46,7 +68,7 @@ class EditDiaryView(LoginRequiredMixin, View):
             return HttpResponseNotFound('そのURLは存在しません。')
 
         if diary_id == CREATE:
-            self.form = DiaryModelForm(
+            form = DiaryModelForm(
                 user=request.user,
                 color=color,
                 color_level=color_level,
@@ -57,15 +79,22 @@ class EditDiaryView(LoginRequiredMixin, View):
                 diary = Diary.objects.get(user=request.user, id=diary_id)
             except Diary.DoesNotExist:
                 return HttpResponseNotFound('そのような日記は存在しません。')
-            self.form = DiaryModelForm(
+            form = DiaryModelForm(
                 user=request.user,
                 color=color,
                 color_level=color_level,
                 instance=diary,
                 data=request.POST,
             )
-        if self.form.is_valid():
-            self.form.save()
+        if form.is_valid():
+            form.save()
+            if 'color_id' in request.session:
+                del request.session['color_id']
+            if 'color_level' in request.session:
+                del request.session['color_level']
+            if 'color_choosed_diary_id' in request.session:
+                del request.session['color_choosed_diary_id']
+
             return redirect('color_diary:diary-index')
         return render(request, 'color_diary/edit_diary.html', {'form': self.form})
 
