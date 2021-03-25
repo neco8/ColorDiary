@@ -11,7 +11,6 @@ from ..models import Diary, Color
 
 
 class DeleteDiaryView(LoginRequiredMixin, View):
-    # todo: 詳細画面に戻る時、入力していた内容を保持しておきたい。フォームの入力保持。これはvue.jsの自動保存にしよう。vue.jsで、削除ボタンが押された時に保存をサーバーへ移す。
     # todo: キャンセルボタンのテスト。複数の場所から行って戻る時はしっかりもとの所に戻れるかどうか
     login_url = reverse_lazy('color_diary:login')
 
@@ -26,7 +25,10 @@ class DeleteDiaryView(LoginRequiredMixin, View):
             return HttpResponseNotFound(_('不正なIDです。'))
 
         previous_url = get_previous_url(request)
-        return render(request, 'color_diary/delete_diary.html', {'previous_url': previous_url})
+        return render(request, 'color_diary/delete_diary.html', {
+            'previous_url': previous_url,
+            'diary': diary
+        })
 
     def post(self, request, *args, **kwargs):
         try:
@@ -56,7 +58,10 @@ class DeleteColorView(LoginRequiredMixin, View):
             return HttpResponseNotFound(_('不正なIDです。'))
 
         previous_url = get_previous_url(request)
-        return render(request, 'color_diary/delete_color.html', {'previous_url': previous_url})
+        return render(request, 'color_diary/delete_color.html', {
+            'previous_url': previous_url,
+            'color': color
+        })
 
     def post(self, request, *args, **kwargs):
         try:
