@@ -8,7 +8,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import Diary
 from ..forms import ChooseColorForm
 from ..utils import get_hashids
-from .utils import get_previous_url
 from .edit import CREATE
 
 
@@ -25,38 +24,48 @@ class ChooseColorView(LoginRequiredMixin, View):
             return HttpResponseNotFound(_('不正なURLです。'))
 
         if diary_id == CREATE:
-            self.form = ChooseColorForm(login_user=request.user)
+            form = ChooseColorForm(login_user=request.user)
         else: # 編集
             try:
                 diary = Diary.objects.get(id=diary_id, user=request.user)
             except Diary.DoesNotExist:
                 return HttpResponseNotFound(_('不正なIDです。'))
 
-            self.form = ChooseColorForm(login_user=request.user, initial={
+            form = ChooseColorForm(login_user=request.user, initial={
                 'color': diary.color.pk,
                 'color_level': diary.color_level
             })
 
-        if request.session.get('color_id', None) and get_previous_url(request) == reverse('color_diary:edit-diary', kwargs={'diary_hash_id': get_hashids().encode(diary_id)}):
-            self.form.initial['color'] = int(request.session['color_id'])
-        if request.session.get('color_level', None) and get_previous_url(request) == reverse('color_diary:edit-diary', kwargs={'diary_hash_id': get_hashids().encode(diary_id)}):
-            self.form.initial['color_level'] = int(request.session['color_level'])
+        # fixme: color_choosed_diary_id は、現在開いている日記が色を選択しているかどうかを確認するためにやむなく設定した値。SPAにした後、choose_colorのviewを廃止すればこのような事は避けられる。
+        if request.session.get('color_choosed_diary_id') != diary_id:
+            return render(request, 'color_diary/choose_color.html', {
+                'form': form,
+                'CREATE': CREATE,
+            })
+
+        if 'color_id' in request.session:
+            form.initial['color'] = int(request.session.get('color_id'))
+        if 'color_level' in request.session:
+            form.initial['color_level'] = int(request.session.get('color_level'))
 
         return render(request, 'color_diary/choose_color.html', {
-            'form': self.form,
+            'form': form,
             'CREATE': CREATE,
         })
 
     def post(self, request, *args, **kwargs):
-        diary_hash_id = kwargs['diary_hash_id']
-        self.form = ChooseColorForm(login_user=request.user, data=request.POST)
+        try:
+            diary_id = get_hashids().decode(kwargs.get('diary_hash_id'))[0]
+        except:
+            return HttpResponseNotFound(_('不正なURLです。'))
+        form = ChooseColorForm(login_user=request.user, data=request.POST)
 
-        if self.form.is_valid():
-            request.session['color_id'] = self.form.cleaned_data['color'].pk
-            request.session['color_level'] = self.form.cleaned_data['color_level']
-            return redirect('color_diary:edit-diary', diary_hash_id=diary_hash_id)
-        else:
-            return render(request, 'color_diary/choose_color.html', {
-                'form': self.form,
-                'CREATE': CREATE,
-            })
+        if form.is_valid():
+            request.session['color_id'] = form.cleaned_data['color'].pk
+            request.session['color_level'] = form.cleaned_data['color_level']
+            request.session['color_choosed_diary_id'] = diary_id
+            return redirect('color_diary:edit-diary', diary_hash_id=kwargs.get('diary_hash_id'))
+        return render(request, 'color_diary/choose_color.html', {
+            'form': form,
+            'CREATE': CREATE,
+        })
