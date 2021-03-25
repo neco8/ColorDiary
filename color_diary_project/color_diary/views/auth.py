@@ -1,7 +1,12 @@
-from django.views.generic import View, CreateView
+from django.views.generic import View, CreateView, TemplateView
 from django.contrib.auth import authenticate, login, logout, REDIRECT_FIELD_NAME, get_user_model
+from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+from django.core.signing import dumps, loads, BadSignature, SignatureExpired
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.http import HttpResponseBadRequest
 
 from ..admin import UserCreationForm
 from ..forms import UserLoginForm
@@ -42,15 +47,54 @@ def logout_view(request):
 class RegisterView(CreateView):
     model = User
     form_class = UserCreationForm
-    success_url = reverse_lazy('color_diary:diary-index')
     template_name = 'color_diary/register.html'
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        # validだったら、メールでURLを送る
+        # URL行ったら、そこで認証、activeにする
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
 
-        email = form.cleaned_data['email']
-        password = form.cleaned_data['password1']
-        user = authenticate(self.request, email=email, password=password)
-        login(self.request, user=user)
+        site = get_current_site(self.request)
+        context = {
+            'protocol': self.request.scheme,
+            'domain': site.domain,
+            'token': dumps(user.pk),
+            'user': user
+        }
+        subject = render_to_string('color_diary/mail/register/subject.txt', context)
+        message = render_to_string('color_diary/mail/register/message.txt', context)
 
-        return response
+        user.email_user(subject, message)
+        print()
+        return redirect('color_diary:register-done')
+
+
+
+class RegisterDoneView(TemplateView):
+    template_name = 'color_diary/register_done.html'
+
+
+class RegisterCompleteView(View):
+    timeout_seconds = getattr(settings, 'ACTIVATION_TIMEOUT_SECONDS', 60 * 30)
+
+    def get(self, request, *args, **kwargs):
+        token = kwargs.get('token')
+        try:
+            user_pk = loads(token, max_age=self.timeout_seconds)
+        except BadSignature:
+            return HttpResponseBadRequest()
+        except SignatureExpired:
+            return HttpResponseBadRequest()
+
+        else:
+            try:
+                user = get_user_model().objects.get(id=user_pk)
+            except User.DoesNotExist:
+                return HttpResponseBadRequest()
+            else:
+                user.is_active = True
+                user.save()
+                login(self.request, user)
+                return redirect('color_diary:diary-index')
