@@ -1,19 +1,101 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Diary Index{% endblock %}
+{% block title %}Emotebook. - Diary Index{% endblock %}
+
+{% block header_right %}
+    <a id="colors" href="{% url 'color_diary:color-index' %}">Colors</a>
+{% endblock %}
 
 {% block content %}
-    <a href="{% url 'color_diary:color-index' %}">Colors</a>
-    {% load encode %}
-    <div id="diaryContainer">
-        {% for diary in diary_list %}
-            <div class="diaryItem">これ全体が編集画面へのリンク,背景が色の薄まったやつになる
-                <div class="date">{{ diary.created_at }}</div>
-                <a class="expandLink context" href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context }}</a>
-                <a class="inlink button-icon" href="{% url 'color_diary:delete-diary' diary_hash_id=diary.pk|encode %}">Delete</a>
-            </div>
-        {% endfor %}
-    </div>
+    <div id="diaryIndex">
+        {% load encode %}
+        <div class="diaryContainer">
+            {% for diary in diary_list %}
+                <div :style="{ 'border-color': borderColor(diaryBackgroundColor({{ diary.pk }})), 'background-color': diaryBackgroundColor({{ diary.pk }}), 'color': fontColor(diaryBackgroundColor({{ diary.pk }})) }" id="{{ diary.pk }}" class="diaryItem">
+                    <div class="date">{{ diary.created_at|date:"Y/m/d H:i:s" }}</div>
+                    <a class="context" href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context|truncatechars:100 }}</a>
+                    <div class="dropdownMenu" @click="diaryDropdownMenuOnClickHandler({{ diary.pk }})" :style="{ 'color': hoverFixedFontColor({{ diary.pk }}) }">
+                        <div class="icon">︙</div>
+                        <ul class="dropdownMenuItem" :class="{ visible: objects[{{ diary.pk }}]['isMenuVisible'] }">
+                            <li>
+                                <a class="delete" href="{% url 'color_diary:delete-diary' diary_hash_id=diary.pk|encode %}">Delete</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-    <a class="button-icon" href="{% url 'color_diary:choose-color' diary_hash_id=CREATE|encode %}">Add Diary</a>
+        <div id="add" class="button-icon">
+            <a href="{% url 'color_diary:choose-color' diary_hash_id=CREATE|encode %}">
+                <i class="fas fa-plus fa-stack-1x fa-inverse"></i>
+            </a>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block data %}
+    data() {
+        return {
+            objects: {
+                {% for diary in diary_list %}
+                    {{ diary.pk }}: {
+                        color: "{{ diary.color }}".split("-")[0],
+                        alpha: parseInt("{{ diary.color }}".split("-")[1], 10),
+                        colorLevel: {{ diary.color_level }} / 10,
+                        isMenuVisible: false,
+                        isHovered: false
+                    },
+                {% endfor %}
+            }
+        }
+    },
+{% endblock %}
+
+{% block methods %}
+    diaryBackgroundColor(pk) {
+        const alpha = this.objects[pk]["alpha"]
+        const color = this.calcColor(this.objects[pk]["color"], '#FFFFFF', alpha) /*todo: ここは背景色にする*/
+        const adjustedColor = this.calcColor(color, '#FFFFFF', this.objects[pk]["colorLevel"])
+        return adjustedColor
+    },
+    hoverFixedFontColor(pk) {
+        const backgroundColor = this.diaryBackgroundColor(pk);
+        const fontColor = this.fontColor(backgroundColor);
+        const rgb = this.parseColor(fontColor);
+        const hoveredAlpha = 0.6
+        const unhoveredAlpha = 1
+        if(this.objects[pk]['isHovered']) {
+            return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${hoveredAlpha})`
+        }
+        return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${unhoveredAlpha})`
+    },
+    diaryDropdownMenuOnClickHandler(pk) {
+        const dropdownMenu = document.getElementById(pk).getElementsByClassName('dropdownMenu')[0];
+        this.dropdownMenuOnClickHandler(pk, dropdownMenu);
+    },
+    onMenuVisibility(pk) {
+        this.objects[pk]['isMenuVisible'] = true
+    },
+    offMenuVisibility(pk) {
+        this.objects[pk]['isMenuVisible'] = false
+    },
+{% endblock %}
+
+{% block mounted %}
+    mounted() {
+        const diaryItemList = document.getElementsByClassName('diaryItem');
+        Array.prototype.forEach.call(diaryItemList, (diaryItem) => {
+            const pk = diaryItem.id
+            const dropdownMenu = diaryItem.getElementsByClassName('dropdownMenu')[0];
+
+            dropdownMenu.addEventListener('mouseenter', (event) => {
+                this.objects[pk]['isHovered'] = true
+            });
+            dropdownMenu.addEventListener('mouseleave', (event) => {
+                this.objects[pk]['isHovered'] = false
+            });
+        })
+    },
 {% endblock %}

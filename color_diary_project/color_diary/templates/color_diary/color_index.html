@@ -1,21 +1,62 @@
 {% extends "color_diary/base.html" %}
 
-{% block title %}Color Diary - Color Index{% endblock %}
+{% block title %}Emotebook. - Color Index{% endblock %}
 
 {% block content %}
     {% load encode %}
-    <div class="colorContainer">
-        {% for color in color_list %}
-            {% if color == default_color %}
-                <div class="colorContent-disable">{{ color }}</div><!--todo: 操作できないというクリックアイコンにする、カーソル-->
-            {% else %}
-                <div class="colorContent-button dropdown">
-                    <!-- todo: こう云うドロップダウンメニューを作る -->
-                    <a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">{{ color }}</a>
-                    <a href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a>
-                </div>
-            {% endif %}
-        {% endfor %}
-        <a class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}">Add Color</a>
+    <div id="colorIndex">
+        <div class="wrapper">
+            {% for color in color_list %}
+                {% if color == default_color %}
+                    <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')), 'background': diagonalLineBackground('{{ color }}') }" class="colorContent-disable" id="{{ color.pk }}"></div>
+                {% else %}
+                    <div @click="colorDropdownMenuOnClickHandler({{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
+                        <ul class="dropdownMenuItem" :class="{ visible: objects[{{ color.pk }}]['isMenuVisible'] }">
+                            <li><a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">Edit</a></li>
+                            <li><a class="delete" href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a></li>
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <a :style="{ 'border-color': borderColor('#FFFFFF'), 'color': borderColor('#FFFFFF') }" class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}"><i class="fas fa-plus"></i></a>
+        </div>
     </div>
-{% ndblock %}
+{% endblock %}
+
+{% block data %}
+    data() {
+        return {
+            objects: {
+                {% for color in color_list %}
+                    {{ color.pk }}: {
+                        isMenuVisible: false,
+                        isHovered: false,
+                    },
+                {% endfor %}
+            },
+            visibleObjectPk: 0,
+        }
+    },
+{% endblock %}
+
+{% block methods %}
+    diagonalLineBackground(colorLabel) {
+        const backgroundColor = this.backgroundColor(colorLabel);
+        const borderColor = this.borderColor(backgroundColor)
+        return `linear-gradient(135deg, ${backgroundColor} 48.5%, ${borderColor} 3%, ${backgroundColor} 51.5%, ${backgroundColor})`
+    },
+    colorDropdownMenuOnClickHandler(pk) {
+        const dropdownMenu = document.getElementById(pk);
+        this.dropdownMenuOnClickHandler(pk, dropdownMenu);
+    },
+    onMenuVisibility(pk) {
+        if(this.visibleObjectPk != 0) {
+            this.offMenuVisibility(this.visibleObjectPk);
+        }
+        this.objects[pk]['isMenuVisible'] = true;
+        this.visibleObjectPk = pk;
+    },
+    offMenuVisibility(pk) {
+        this.objects[pk]['isMenuVisible'] = false
+    },
+{% endblock %}
