@@ -1,0 +1,1 @@
+web: gunicorn color_diary_project.wsgi
