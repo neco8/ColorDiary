@@ -141,3 +141,4 @@ EMAIL_USE_TLS = True
 
 import django_on_heroku
 django_on_heroku.settings(locals())
+del DATABASES['default']['OPTIONS']['sslmode']
