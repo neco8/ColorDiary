@@ -133,10 +133,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # メールサーバーへの接続設定
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST= 'smtp.sendgrid.net'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME')
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
 EMAIL_USE_TLS = True
 
 import django_on_heroku
