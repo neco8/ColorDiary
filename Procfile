@@ -1,1 +1,1 @@
-web: gunicorn color_diary_project.wsgi
+web: gunicorn --chdir color_diary_project color_diary_project.wsgi
