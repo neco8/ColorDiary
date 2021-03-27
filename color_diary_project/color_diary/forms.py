@@ -12,7 +12,7 @@ DEFAULT_COLOR_LEVEL = 10
 
 
 class ChooseColorForm(forms.Form):
-    color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color(), queryset=None)
+    color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color, queryset=None)
     color_level = forms.IntegerField(
         initial=DEFAULT_COLOR_LEVEL,
         widget=forms.NumberInput(attrs={
