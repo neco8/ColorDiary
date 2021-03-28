@@ -1,4 +1,6 @@
 # Emotebook
+https://emotebook.herokuapp.com/
+herokuへデプロイしました！
 
 # ところで
 
