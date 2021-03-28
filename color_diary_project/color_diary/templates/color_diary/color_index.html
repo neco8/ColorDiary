@@ -8,7 +8,7 @@
         <div class="wrapper">
             {% for color in color_list %}
                 {% if color == default_color %}
-                    <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')), 'background': diagonalLineBackground('{{ color }}') }" class="colorContent-disable" id="{{ color.pk }}"></div>
+                    <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-disable" id="{{ color.pk }}"></div>
                 {% else %}
                     <div @click="colorDropdownMenuOnClickHandler({{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ color.pk }}]['isMenuVisible'] }">
@@ -40,11 +40,6 @@
 {% endblock %}
 
 {% block methods %}
-    diagonalLineBackground(colorLabel) {
-        const backgroundColor = this.backgroundColor(colorLabel);
-        const borderColor = this.borderColor(backgroundColor)
-        return `linear-gradient(135deg, ${backgroundColor} 48.5%, ${borderColor} 3%, ${backgroundColor} 51.5%, ${backgroundColor})`
-    },
     colorDropdownMenuOnClickHandler(pk) {
         const dropdownMenu = document.getElementById(pk);
         this.dropdownMenuOnClickHandler(pk, dropdownMenu);
