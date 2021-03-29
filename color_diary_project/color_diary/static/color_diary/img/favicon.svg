@@ -14,6 +14,19 @@
    id="svg8"
    inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
    sodipodi:docname="favicon.svg">
+  <svg:style>
+    path {
+      fill: #000;
+      stroke: #000;
+    }
+
+    @media(prefers-color-scheme: dark) {
+      path {
+        fill: #fff;
+        stroke: #fff;
+      }
+    }
+  </svg:style>
   <defs
      id="defs2">
     <rect
@@ -82,7 +95,6 @@
        id="g872"
        transform="translate(1.5373229,-29.906726)">
       <path
-         style="fill:#343375;fill-opacity:1;stroke:#2d2c46;stroke-width:1.22291;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 133.66606,150.28242 h 19.53737 z"
          id="path866" />
       <g
