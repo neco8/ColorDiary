@@ -501,6 +501,18 @@
                 }
             }
         }
+
+        #404 {
+            @extend %underContent;
+            @extend %mediumContentContainer;
+
+            .wrapper {
+                display: grid;
+                grid-template-columns: auto auto;
+                grid-template-rows: 1fr;
+                place-content: center;
+            }
+        }
     }
 }
 

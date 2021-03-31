@@ -452,6 +452,22 @@ input[type=text], input[type=email], input[type=password] {
     }
 }
 
+#404 {
+    .wrapper {
+        .English {
+            font-family: $fontPhilosopher;
+            font-size: .8rem;
+            color: $primaryColor;
+        }
+
+        .Japanese {
+            font-family: $fontA1GothicL;
+            font-size: .7rem;
+            color: rgba(0, 0, 0, .6);
+        }
+    }
+}
+
 .pcr-app[data-theme='classic'] {
     border-radius: 1.5px;
     box-shadow: none;
