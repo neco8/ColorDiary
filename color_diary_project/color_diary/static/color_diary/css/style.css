@@ -431,6 +431,7 @@ input[type=range i] {
   grid-row: 2;
   display: grid;
   place-content: center;
+  padding: 1rem;
 }
 
 #welcome {
