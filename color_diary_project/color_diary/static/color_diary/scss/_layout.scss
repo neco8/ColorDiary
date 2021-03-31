@@ -503,3 +503,19 @@
         }
     }
 }
+
+@include mq(md) {
+    #app {
+        #header {
+            padding: 0px $gridLength * 2 0px;
+        }
+    }
+}
+
+@include mq(sm) {
+    #app {
+        #header {
+            padding: 0px $gridLength 0px;
+        }
+    }
+}
