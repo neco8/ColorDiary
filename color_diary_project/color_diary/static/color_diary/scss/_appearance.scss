@@ -429,9 +429,12 @@ input[type=text], input[type=email], input[type=password] {
 }
 
 #registerDone {
-    font-family: $fontA1GothicL;
-    font-size: .7rem;
-    color: rgba(0, 0, 0, .6);
+    .wrapper {
+        @extend %mediumContentContainerAppearance;
+        font-family: $fontA1GothicL;
+        font-size: .7rem;
+        color: rgba(0, 0, 0, .6);
+    }
 }
 
 #welcome {
@@ -459,6 +462,7 @@ input[type=text], input[type=email], input[type=password] {
 
 #\34 04 {
     .wrapper {
+        @extend %mediumContentContainerAppearance;
         .English {
             font-family: $fontPhilosopher;
             font-size: .8rem;
