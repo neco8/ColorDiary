@@ -1,7 +1,6 @@
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
-from django.utils.translation import gettext_lazy as _
+from django.urls import reverse_lazy
 from django.views.generic.edit import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -21,7 +20,7 @@ class ChooseColorView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs.get('diary_hash_id'))[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
 
         if diary_id == CREATE:
             form = ChooseColorForm(login_user=request.user)
@@ -29,7 +28,7 @@ class ChooseColorView(LoginRequiredMixin, View):
             try:
                 diary = Diary.objects.get(id=diary_id, user=request.user)
             except Diary.DoesNotExist:
-                return HttpResponseNotFound(_('不正なIDです。'))
+                return HttpResponseNotFound()
 
             form = ChooseColorForm(login_user=request.user, initial={
                 'color': diary.color.pk,
@@ -57,7 +56,7 @@ class ChooseColorView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs.get('diary_hash_id'))[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
         form = ChooseColorForm(login_user=request.user, data=request.POST)
 
         if form.is_valid():
