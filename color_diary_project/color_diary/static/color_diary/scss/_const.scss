@@ -6,7 +6,6 @@ $contentMediumMargin: $gridLength;
 $contentSmallMargin: $gridLength * .5;
 $mediumContentSizeWidth: 45%;
 $mediumContentSizeHeight: 68%;
-$addButtonMargin: 1rem;
 $transitionTime: 0.1s;
 $lightShadowColor: rgba(58, 49, 79, .5);
 $shadowColor: rgba(58, 49, 79, .55);
@@ -14,6 +13,15 @@ $darkShadowColor: rgba(58, 49, 79, .6);
 $Distance1BoxShadow: 0px 2px 2px -1px $darkShadowColor;
 $Distance2BoxShadow: 0px 4px 4px -2px $shadowColor;
 $Distance3BoxShadow: 0px 6px 6px -3px $lightShadowColor;
+$breakpoints: (
+  'sm': 'screen and (max-width: 400px)',
+  'md': 'screen and (max-width: 768px)',
+) !default;
+@mixin mq($breakpoint: md) {
+    @media #{map-get($breakpoints, $breakpoint)} {
+        @content;
+    }
+}
 
 
 $diaryItemContextHeight: 3 * $gridLength;
@@ -29,7 +37,6 @@ $fontCrimsonPro: 'Crimson Pro', serif;
 $fontNotoSans: 'Noto Sans JP', sans-serif;
 $fontPhilosopher: 'Philosopher', sans-serif;
 $fontRoboto: 'Roboto', sans-serif;
-//$fontSourceSansPro: 'Source Sans Pro', sans-serif;
 $fontA1GothicL: A1ゴシック L;
 $fontRaleway: 'Raleway', sans-serif;
 
