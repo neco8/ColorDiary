@@ -428,6 +428,12 @@ input[type=text], input[type=email], input[type=password] {
     }
 }
 
+#registerDone {
+    font-family: $fontA1GothicL;
+    font-size: .7rem;
+    color: rgba(0, 0, 0, .6);
+}
+
 #welcome {
     .top {
         background-color: $primaryColor;

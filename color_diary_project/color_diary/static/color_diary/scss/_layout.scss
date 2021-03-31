@@ -474,6 +474,14 @@
     @extend %loginRegister;
 }
 
+#registerDone {
+    @extend %underContent;
+    @extend %mediumContentContainer;
+
+    display: grid;
+    place-content: center;
+}
+
 #welcome {
     @extend %underContent;
 
