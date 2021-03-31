@@ -10,9 +10,9 @@ $transitionTime: 0.1s;
 $lightShadowColor: rgba(58, 49, 79, .5);
 $shadowColor: rgba(58, 49, 79, .55);
 $darkShadowColor: rgba(58, 49, 79, .6);
-$Distance1BoxShadow: 0px 2px 2px -1px $darkShadowColor;
-$Distance2BoxShadow: 0px 4px 4px -2px $shadowColor;
-$Distance3BoxShadow: 0px 6px 6px -3px $lightShadowColor;
+$distance1BoxShadow: 0px 2px 2px -1px $darkShadowColor;
+$distance2BoxShadow: 0px 4px 4px -2px $shadowColor;
+$distance3BoxShadow: 0px 6px 6px -3px $lightShadowColor;
 $breakpoints: (
   'sm': 'screen and (max-width: 400px)',
   'md': 'screen and (max-width: 768px)',

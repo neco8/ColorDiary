@@ -23,7 +23,7 @@
     font-size: .65rem;
     font-family: $fontRaleway;
     font-weight: 400;
-    box-shadow: $Distance1BoxShadow;
+    box-shadow: $distance1BoxShadow;
     transition: box-shadow $transitionTime;
 
     display: grid;
@@ -33,7 +33,7 @@
 
     &:hover {
         color: #FFF;
-        box-shadow: $Distance2BoxShadow;
+        box-shadow: $distance2BoxShadow;
     }
 
     &::selection {
@@ -105,7 +105,7 @@ a.button-cancel {
 
 %mediumContentContainerAppearance {
     background-color: #fff;
-    box-shadow: $Distance2BoxShadow;
+    box-shadow: $distance2BoxShadow;
 
     border: solid;
     border-color: rgba($primaryColor, .06);
@@ -220,10 +220,10 @@ a.button-cancel {
         border: solid;
         border-width: 1px;
         border-radius: 1px;
-        box-shadow: $Distance1BoxShadow;
+        box-shadow: $distance1BoxShadow;
 
         &:hover{
-            box-shadow: $Distance2BoxShadow;
+            box-shadow: $distance2BoxShadow;
         }
     }
 }
@@ -240,7 +240,7 @@ a.button-cancel {
             background-color: #fff;
             color: #000;
             font-size: .55rem;
-            box-shadow: $Distance1BoxShadow;
+            box-shadow: $distance1BoxShadow;
             cursor: initial;
             transition: visibility $transitionTime;
 
@@ -333,7 +333,7 @@ a.button-cancel {
         border: solid;
         border-width: 1px;
         border-radius: 2px;
-        box-shadow: $Distance2BoxShadow;
+        box-shadow: $distance2BoxShadow;
         transition: box-shadow $transitionTime;
 
         .date {
@@ -349,7 +349,7 @@ a.button-cancel {
         }
 
         &:hover {
-            box-shadow: $Distance3BoxShadow;
+            box-shadow: $distance3BoxShadow;
         }
     }
 }
