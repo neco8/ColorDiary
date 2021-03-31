@@ -23,6 +23,10 @@
                         </ul>
                     </div>
                 </div>
+            {% empty %}
+                <div id="emptyString">
+                    まだ日記が作成されていません。右下のボタンから、初めての日記を書いてみましょう<span class="big primaryColor">😉</span>！
+                </div>
             {% endfor %}
         </div>
 

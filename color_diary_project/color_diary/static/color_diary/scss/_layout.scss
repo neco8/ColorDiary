@@ -374,6 +374,11 @@
                 grid-auto-rows: $diaryItemDateHeight + $diaryItemContextHeight;
                 gap: $gridLength;
 
+                #emptyString {
+                    grid-column: 1;
+                    grid-row: 1;
+                }
+
                 .diaryItem {
                     display: grid;
                     grid-template-columns: 1fr $gridLength * 2;

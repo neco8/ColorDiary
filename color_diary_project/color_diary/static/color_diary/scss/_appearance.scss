@@ -313,6 +313,20 @@ a.button-cancel {
         }
     }
 
+    #emptyString {
+        font-family: $fontA1GothicL;
+        font-size: .7rem;
+        color: rgba(0, 0, 0, .6);
+
+        .big {
+            font-size: .9rem;
+        }
+
+        .primaryColor {
+            color: $primaryColor;
+        }
+    }
+
     .diaryItem {
         margin-top: -1px;
         margin-left: -1px;
