@@ -12,6 +12,16 @@
     display: grid;
     grid-template-columns: 1fr minmax(500px, $mediumContentSizeWidth) 1fr;
     grid-template-rows: 1fr $mediumContentSizeHeight 1fr $headerHeightRate;
+
+    @include mq(md) {
+        grid-template-columns: $gridLength * 2 1fr $gridLength * 2;
+        grid-template-rows: $gridLength * 2 1fr $gridLength * 2 $headerHeightRate;
+    }
+
+    @include mq(sm) {
+        grid-template-columns: $gridLength * 1 1fr $gridLength * 1;
+        grid-template-rows: $gridLength * 1 1fr $gridLength * 1;
+    }
 }
 
 #app {
