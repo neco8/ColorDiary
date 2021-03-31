@@ -12,6 +12,16 @@
     display: grid;
     grid-template-columns: 1fr minmax(500px, $mediumContentSizeWidth) 1fr;
     grid-template-rows: 1fr $mediumContentSizeHeight 1fr $headerHeightRate;
+
+    @include mq(md) {
+        grid-template-columns: $gridLength * 2 1fr $gridLength * 2;
+        grid-template-rows: $gridLength * 2 1fr $gridLength * 2 $headerHeightRate;
+    }
+
+    @include mq(sm) {
+        grid-template-columns: $gridLength * 1 1fr $gridLength * 1;
+        grid-template-rows: $gridLength * 1 1fr $gridLength * 1;
+    }
 }
 
 #app {
@@ -363,7 +373,7 @@
                 width: $gridLength * 2;
                 height: $gridLength * 2;
                 right: $gridLength * 5;
-                bottom: $addButtonMargin;
+                bottom: $gridLength * 2.5;
                 z-index: 2;
             }
 
@@ -373,6 +383,11 @@
                 display: grid;
                 grid-auto-rows: $diaryItemDateHeight + $diaryItemContextHeight;
                 gap: $gridLength;
+
+                #emptyString {
+                    grid-column: 1;
+                    grid-row: 1;
+                }
 
                 .diaryItem {
                     display: grid;
@@ -483,6 +498,47 @@
                 #discription {
                     grid-column: 1;
                     grid-row: 3;
+                }
+            }
+        }
+    }
+}
+
+@include mq(md) {
+    #app {
+        #header {
+            padding: 0px $gridLength * 2 0px;
+        }
+
+        #content {
+            #diaryIndex {
+                grid-template-columns: $gridLength * 2 1fr $gridLength * 2;
+                #add {
+                    width: $gridLength * 2.5;
+                    height: $gridLength * 2.5;
+                    right: $gridLength * 2;
+                    bottom: $gridLength * 2;
+                }
+            }
+        }
+    }
+}
+
+@include mq(sm) {
+    #app {
+        #header {
+            padding: 0px $gridLength 0px;
+        }
+
+        #content {
+            #diaryIndex {
+                grid-template-columns: $gridLength 1fr $gridLength;
+                grid-template-rows: $gridLength 1fr $gridLength;
+                #add {
+                    width: $gridLength * 3;
+                    height: $gridLength * 3;
+                    right: $gridLength;
+                    bottom: $gridLength;
                 }
             }
         }

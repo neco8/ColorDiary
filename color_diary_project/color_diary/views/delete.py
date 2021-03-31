@@ -3,7 +3,6 @@ from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import gettext_lazy as _
 
 from ..utils import get_hashids
 from .utils import get_previous_url
@@ -18,11 +17,11 @@ class DeleteDiaryView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs['diary_hash_id'])[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
         try:
             diary = Diary.objects.get(id=diary_id, user=request.user)
         except Diary.DoesNotExist:
-            return HttpResponseNotFound(_('不正なIDです。'))
+            return HttpResponseNotFound()
 
         previous_url = get_previous_url(request)
         return render(request, 'color_diary/delete_diary.html', {
@@ -34,11 +33,11 @@ class DeleteDiaryView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs['diary_hash_id'])[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
         try:
             diary = Diary.objects.get(id=diary_id, user=request.user)
         except Diary.DoesNotExist:
-            return HttpResponseNotFound(_('不正なIDです。'))
+            return HttpResponseNotFound()
 
         diary.delete()
         return redirect('color_diary:diary-index')
@@ -51,11 +50,11 @@ class DeleteColorView(LoginRequiredMixin, View):
         try:
             color_id = get_hashids().decode(kwargs['color_hash_id'])[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
         try:
             color = Color.objects.get(users=request.user, id=color_id)
         except Color.DoesNotExist:
-            return HttpResponseNotFound(_('不正なIDです。'))
+            return HttpResponseNotFound()
 
         previous_url = get_previous_url(request)
         return render(request, 'color_diary/delete_color.html', {
@@ -67,11 +66,11 @@ class DeleteColorView(LoginRequiredMixin, View):
         try:
             color_id = get_hashids().decode(kwargs['color_hash_id'])[0]
         except:
-            return HttpResponseNotFound(_('不正なURLです。'))
+            return HttpResponseNotFound()
         try:
             color = Color.objects.get(users=request.user, id=color_id)
         except Color.DoesNotExist:
-            return HttpResponseNotFound(_('不正なIDです。'))
+            return HttpResponseNotFound()
 
         color.users.remove(request.user)
         if color.users.all().count() == 0:

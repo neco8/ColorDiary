@@ -65,6 +65,18 @@ input[type=range i] {
   grid-template-columns: 1fr minmax(500px, 45%) 1fr;
   grid-template-rows: 1fr 68% 1fr 3rem;
 }
+@media screen and (max-width: 768px) {
+  #app #content #editColor, #app #content #chooseColor, #app #content #colorIndex, #app #content #register, #app #content #login, #app #content #deleteDiary, #app #content #deleteColor {
+    grid-template-columns: 2rem 1fr 2rem;
+    grid-template-rows: 2rem 1fr 2rem 3rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  #app #content #editColor, #app #content #chooseColor, #app #content #colorIndex, #app #content #register, #app #content #login, #app #content #deleteDiary, #app #content #deleteColor {
+    grid-template-columns: 1rem 1fr 1rem;
+    grid-template-rows: 1rem 1fr 1rem;
+  }
+}
 
 #app {
   display: grid;
@@ -330,7 +342,7 @@ input[type=range i] {
   width: 2rem;
   height: 2rem;
   right: 5rem;
-  bottom: 1rem;
+  bottom: 2.5rem;
   z-index: 2;
 }
 #app #content #diaryIndex .diaryContainer {
@@ -339,6 +351,10 @@ input[type=range i] {
   display: grid;
   grid-auto-rows: 5rem;
   gap: 1rem;
+}
+#app #content #diaryIndex .diaryContainer #emptyString {
+  grid-column: 1;
+  grid-row: 1;
 }
 #app #content #diaryIndex .diaryContainer .diaryItem {
   display: grid;
@@ -422,6 +438,35 @@ input[type=range i] {
   grid-row: 3;
 }
 
+@media screen and (max-width: 768px) {
+  #app #header {
+    padding: 0px 2rem 0px;
+  }
+  #app #content #diaryIndex {
+    grid-template-columns: 2rem 1fr 2rem;
+  }
+  #app #content #diaryIndex #add {
+    width: 2.5rem;
+    height: 2.5rem;
+    right: 2rem;
+    bottom: 2rem;
+  }
+}
+@media screen and (max-width: 400px) {
+  #app #header {
+    padding: 0px 1rem 0px;
+  }
+  #app #content #diaryIndex {
+    grid-template-columns: 1rem 1fr 1rem;
+    grid-template-rows: 1rem 1fr 1rem;
+  }
+  #app #content #diaryIndex #add {
+    width: 3rem;
+    height: 3rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
 a.button, .button, a.button-cancel, .button-cancel, a.button-delete, .button-delete {
   width: 120px;
   padding: 0.25rem 1rem 0.25rem;
@@ -627,6 +672,17 @@ a.button-cancel, .button-cancel {
 #diaryIndex #add a i {
   align-self: center;
   justify-self: center;
+}
+#diaryIndex #emptyString {
+  font-family: A1ゴシック L;
+  font-size: 0.7rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+#diaryIndex #emptyString .big {
+  font-size: 0.9rem;
+}
+#diaryIndex #emptyString .primaryColor {
+  color: #206E69;
 }
 #diaryIndex .diaryItem {
   margin-top: -1px;

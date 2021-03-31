@@ -43,7 +43,7 @@ class EditDiaryView(LoginRequiredMixin, View):
             diary = Diary.objects.get(user=request.user, id=diary_id)
         except Diary.DoesNotExist:
             # todo: 404画面を作る
-            return HttpResponseNotFound('そのような日記は存在しません。')
+            return HttpResponseNotFound()
 
         if request.session.get('color_choosed_diary_id') != diary_id:
             form = DiaryModelForm(user=request.user, instance=diary)
@@ -65,7 +65,7 @@ class EditDiaryView(LoginRequiredMixin, View):
         try:
             diary_id = get_hashids().decode(kwargs['diary_hash_id'])[0]
         except:
-            return HttpResponseNotFound('そのURLは存在しません。')
+            return HttpResponseNotFound()
 
         if diary_id == CREATE:
             form = DiaryModelForm(
@@ -78,7 +78,7 @@ class EditDiaryView(LoginRequiredMixin, View):
             try:
                 diary = Diary.objects.get(user=request.user, id=diary_id)
             except Diary.DoesNotExist:
-                return HttpResponseNotFound('そのような日記は存在しません。')
+                return HttpResponseNotFound()
             form = DiaryModelForm(
                 user=request.user,
                 color=color,
@@ -106,17 +106,17 @@ class EditColorView(LoginRequiredMixin, View):
         try:
             color_id = get_hashids().decode(kwargs['color_hash_id'])[0]
         except:
-            return HttpResponseNotFound('不正なURLです。')
+            return HttpResponseNotFound()
 
         if color_id == CREATE:
             self.form = ColorModelForm(user=request.user, initial={'hex_color': '000000'})
         elif color_id == Color.get_default_color().pk:
-            return HttpResponseNotFound('編集する事はできません。')
+            return HttpResponseNotFound()
         else: # 編集
             try:
                 color = Color.objects.get(users=request.user, id=color_id)
             except Color.DoesNotExist:
-                return HttpResponseNotFound('不正なIDです。')
+                return HttpResponseNotFound()
 
             self.form = ColorModelForm(user=request.user, instance=color)
         request.session['previous_url'] = get_previous_url(request)
@@ -126,17 +126,17 @@ class EditColorView(LoginRequiredMixin, View):
         try:
             color_id = get_hashids().decode(kwargs['color_hash_id'])[0]
         except:
-            return HttpResponseNotFound('不正なURLです。')
+            return HttpResponseNotFound()
 
         if color_id == CREATE:
             self.form = ColorModelForm(user=request.user, data=request.POST)
         elif color_id == Color.get_default_color().pk:
-            return HttpResponseNotFound('編集する事はできません。')
+            return HttpResponseNotFound()
         else: # 編集
             try:
                 color = Color.objects.get(users=request.user, id=color_id)
             except Color.DoesNotExist:
-                return HttpResponseNotFound('不正なIDです。')
+                return HttpResponseNotFound()
             self.form = ColorModelForm(user=request.user, instance=color, data=request.POST)
 
         if self.form.is_valid():
