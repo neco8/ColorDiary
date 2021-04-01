@@ -463,9 +463,11 @@ input[type=text], input[type=email], input[type=password] {
 #\34 04 {
     .wrapper {
         @extend %mediumContentContainerAppearance;
+
+        text-align: center;
         .English {
             font-family: $fontPhilosopher;
-            font-size: .8rem;
+            font-size: 1rem;
             color: $primaryColor;
         }
 

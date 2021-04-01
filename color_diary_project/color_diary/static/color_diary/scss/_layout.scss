@@ -525,8 +525,10 @@
         grid-row: 2;
 
         display: grid;
-        grid-template-columns: auto auto;
-        grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        padding: $gridLength;
+        gap: .4 * $gridLength;
         place-content: center;
     }
 }
