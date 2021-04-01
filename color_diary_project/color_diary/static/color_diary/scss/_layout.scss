@@ -4,7 +4,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, 2 * $gridLength);
     grid-template-rows: repeat(auto-fit, 2 * $gridLength);
+    grid-auto-rows: 2 * $gridLength;
     grid-auto-flow: row;
+    overflow-y: auto;
     gap: .5 * $gridLength;
 }
 
@@ -15,12 +17,12 @@
 
     @include mq(md) {
         grid-template-columns: $gridLength * 2 1fr $gridLength * 2;
-        grid-template-rows: $gridLength * 2 1fr $gridLength * 2 $headerHeightRate;
+        grid-template-rows: $gridLength * 2 calc(100vh - #{$gridLength * 2 + $headerHeightRate * 2}) $gridLength * 2 $headerHeightRate;
     }
 
     @include mq(sm) {
-        grid-template-columns: $gridLength * 1 1fr $gridLength * 1;
-        grid-template-rows: $gridLength * 1 1fr $gridLength * 1;
+        grid-template-columns: $gridLength 1fr $gridLength;
+        grid-template-rows: $gridLength calc(100vh - #{$gridLength * 2 + $headerHeightRate}) $gridLength;
     }
 }
 
