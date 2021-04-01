@@ -594,6 +594,11 @@ a.button-cancel, .button-cancel {
 #colorIndex .wrapper .colorContent-disable:hover, #chooseColor form .colorContainer .colorContent-disable:hover {
   cursor: not-allowed;
 }
+#colorIndex .wrapper .transparent, #chooseColor form .colorContainer .transparent {
+  background: linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.05) 75%), linear-gradient(45deg, rgba(0, 0, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 7px 7px;
+}
 
 #chooseColor form .sliderWrapper .slider {
   -webkit-appearance: none;

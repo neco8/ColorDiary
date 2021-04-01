@@ -10,7 +10,7 @@
             <div class="colorContainer">
                 {% for radio in form.color %}
                     {{ radio.tag }}
-                    <label :style="{ 'background-color': backgroundColor('{{ radio.choice_label }}'), 'border-color': borderColor(backgroundColor('{{ radio.choice_label }}')) }" class="colorContent-select" for="{{ radio.id_for_label }}">
+                    <label :style="{ 'background-color': backgroundColor('{{ radio.choice_label }}'), 'border-color': borderColor(backgroundColor('{{ radio.choice_label }}')) }" class="colorContent-select {% if radio.id_for_label == 'id_color_0' %}transparent{% endif %}" for="{{ radio.id_for_label }}">
                     </label>
                 {% endfor %}
                 <a :style="{ 'border-color': borderColor('FFFFFF'), 'color': borderColor('FFFFFF') }" class="colorContent-button" href="{% url 'color_diary:edit-color' color_hash_id=CREATE|encode %}"><i class="fas fa-plus"></i></a>

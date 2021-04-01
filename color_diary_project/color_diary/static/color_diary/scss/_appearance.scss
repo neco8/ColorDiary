@@ -123,7 +123,6 @@ a.button-cancel {
 
         display: grid;
         place-items: center;
-        // hoverなど
 
         &:hover {
             cursor: pointer;
@@ -155,6 +154,13 @@ a.button-cancel {
         &:hover {
             cursor: not-allowed;
         }
+    }
+
+    .transparent {
+        background: linear-gradient(45deg, rgba(0, 0, 0, .05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, .05) 75%),
+            linear-gradient(45deg, rgba(0, 0, 0, .05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, .05) 75%);
+        background-size: 14px 14px;
+        background-position: 0 0, 7px 7px;
     }
 }
 

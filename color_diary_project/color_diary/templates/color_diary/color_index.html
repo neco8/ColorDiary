@@ -8,7 +8,7 @@
         <div class="wrapper">
             {% for color in color_list %}
                 {% if color == default_color %}
-                    <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-disable" id="{{ color.pk }}"></div>
+                    <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-disable transparent" id="{{ color.pk }}"></div>
                 {% else %}
                     <div @click="colorDropdownMenuOnClickHandler({{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ color.pk }}]['isMenuVisible'] }">
