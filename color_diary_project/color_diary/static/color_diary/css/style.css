@@ -328,9 +328,7 @@ input[type=range i] {
 }
 .dropdownMenu .dropdownMenuItem {
   position: absolute;
-  top: 1rem;
-  left: -4rem;
-  width: 5rem;
+  width: 4rem;
   z-index: 2;
 }
 .dropdownMenu .dropdownMenuItem li {

@@ -10,7 +10,7 @@
                 {% if color == default_color %}
                     <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-disable transparent" id="{{ color.pk }}"></div>
                 {% else %}
-                    <div @click="colorDropdownMenuOnClickHandler({{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
+                    <div @click="colorDropdownMenuOnClickHandler($event, {{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ color.pk }}]['isMenuVisible'] }">
                             <li><a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">Edit</a></li>
                             <li><a class="delete" href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a></li>
@@ -40,8 +40,24 @@
 {% endblock %}
 
 {% block methods %}
-    colorDropdownMenuOnClickHandler(pk) {
+    colorDropdownMenuOnClickHandler(event, pk) {
+        const x = event.pageX
+        const y = event.pageY
+
         const dropdownMenu = document.getElementById(pk);
+        const dropdownMenuItem = dropdownMenu.getElementsByClassName('dropdownMenuItem')[0];
+        const dropdownMenuRect = dropdownMenu.getBoundingClientRect();
+        const wrapperRect = document.getElementsByClassName('wrapper')[0].getBoundingClientRect();
+        const median = (wrapperRect.right + wrapperRect.left) / 2;
+
+        dropdownMenuItem.style.top = (y - dropdownMenuRect.top) + 'px';
+
+        if(x <= median) {
+            dropdownMenuItem.style.left = (x - dropdownMenuRect.left) + 'px';
+        } else {
+            dropdownMenuItem.style.right = (dropdownMenuRect.right - x) + 'px';
+        }
+
         this.dropdownMenuOnClickHandler(pk, dropdownMenu);
     },
     onMenuVisibility(pk) {
