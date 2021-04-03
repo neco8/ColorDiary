@@ -10,11 +10,15 @@
             </div>
             <div class="formInput">
                 {% csrf_token %}
-                {% if form.errors %}
-                    {{ form.errors }}
-                {% endif %}
-                {{ form.email }}
-                {{ form.password }}
+                {{ form.non_field_errors }}
+                <div id="email">
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div id="password">
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                </div>
             </div>
             <div class="wrapper"><input class="button" type="submit" value="Log in"></div>
         </form>

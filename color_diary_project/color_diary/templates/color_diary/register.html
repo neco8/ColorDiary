@@ -10,9 +10,19 @@
             </div>
             <div class="formInput">
                 {% csrf_token %}
-                {{ form.email }}
-                {{ form.password1 }}
-                {{ form.password2 }}
+                {{ form.non_field_errors }}
+                <div id="email">
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                <div id="password1">
+                    {{ form.password1 }}
+                    {{ form.password1.errors }}
+                </div>
+                <div id="password2">
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
             </div>
             <div class="wrapper"><input class="button" type="submit" value="Create"></div>
         </form>
