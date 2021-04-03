@@ -14,7 +14,7 @@
                 <div :style="{ 'border-color': borderColor(diaryBackgroundColor({{ diary.pk }})), 'background-color': diaryBackgroundColor({{ diary.pk }}), 'color': fontColor(diaryBackgroundColor({{ diary.pk }})) }" id="{{ diary.pk }}" class="diaryItem">
                     <div class="date">{{ diary.created_at|date:"Y/m/d H:i:s" }}</div>
                     <a class="context" href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context|truncatechars:100 }}</a>
-                    <div class="dropdownMenu" @click="diaryDropdownMenuOnClickHandler({{ diary.pk }})" :style="{ 'color': hoverFixedFontColor({{ diary.pk }}) }">
+                    <div class="dropdownMenu" @click="diaryDropdownMenuOnClickHandler($event, {{ diary.pk }})" :style="{ 'color': hoverFixedFontColor({{ diary.pk }}) }">
                         <div class="icon">︙</div>
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ diary.pk }}]['isMenuVisible'] }">
                             <li>
@@ -75,8 +75,14 @@
         }
         return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${unhoveredAlpha})`
     },
-    diaryDropdownMenuOnClickHandler(pk) {
+    diaryDropdownMenuOnClickHandler(event, pk) {
         const dropdownMenu = document.getElementById(pk).getElementsByClassName('dropdownMenu')[0];
+        const dropdownMenuItem = dropdownMenu.getElementsByClassName('dropdownMenuItem')[0];
+        const rect = dropdownMenu.getBoundingClientRect();
+        const x = event.pageX;
+        const y = event.pageY;
+        dropdownMenuItem.style.right = (rect.right - x) + 'px';
+        dropdownMenuItem.style.top = (y - rect.top) + 'px';
         this.dropdownMenuOnClickHandler(pk, dropdownMenu);
     },
     onMenuVisibility(pk) {
