@@ -155,6 +155,7 @@ a.button-cancel {
     .colorContent-button {
         @extend %colorContent;
 
+        position: relative;
         &:hover:after {
             content: '';
             background-color: rgba(255, 255, 255, .6);
