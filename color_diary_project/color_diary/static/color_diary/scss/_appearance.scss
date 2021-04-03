@@ -133,17 +133,42 @@ a.button-cancel {
         + .colorContent-select {
             @extend %colorContent;
 
-            transition: margin $transitionTime / 3 ease-in-out, border-width $transitionTime / 3 ease-in-out;
+            position: relative;
         }
 
-        &:checked + .colorContent-select {
-            border-width: 5px;
-            margin: -5px;
+        &:checked + .colorContent-select:after {
+            content: '';
+            background-color: rgba(255, 255, 255, .6);
+            box-sizing: content-box;
+            border: solid;
+            border-width: 3px;
+            border-color: inherit;
+            border-radius: 1.5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
         }
     }
 
     .colorContent-button {
         @extend %colorContent;
+
+        &:hover:after {
+            content: '';
+            background-color: rgba(255, 255, 255, .6);
+            box-sizing: content-box;
+            border: solid;
+            border-width: 3px;
+            border-color: inherit;
+            border-radius: 1.5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
     }
 
     .colorContent-disable {
