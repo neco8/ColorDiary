@@ -348,9 +348,8 @@
     position: relative;
     .dropdownMenuItem {
         position: absolute;
-        top: $gridLength;
-        left: -4 * $gridLength;
-        width: 5 * $gridLength;
+        // rightやtopはjsでクリック位置を取得して処理
+        width: 4 * $gridLength;
         z-index: 2;
         li {
             display: grid;
