@@ -1,6 +1,16 @@
 # Emotebook
 https://emotebook.herokuapp.com/
+
 herokuへデプロイしました！
+
+![usage](https://user-images.githubusercontent.com/43209256/113474828-44d51380-94ad-11eb-9906-c4d4fa01f834.gif)
+
+# これから追加していきたい機能
+
+- evernote・notion連携
+- SPA化
+- 日記一覧画面で、色によってフィルタリング(できれば大まかなフィルタリングも)
+- 日記の表示形式を色だけにしてグリッド表示
 
 # ところで
 
