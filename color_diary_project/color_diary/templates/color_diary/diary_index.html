@@ -14,7 +14,7 @@
                 <div :style="{ 'border-color': borderColor(diaryBackgroundColor({{ diary.pk }})), 'background-color': diaryBackgroundColor({{ diary.pk }}), 'color': fontColor(diaryBackgroundColor({{ diary.pk }})) }" id="{{ diary.pk }}" class="diaryItem">
                     <div class="date">{{ diary.created_at|date:"Y/m/d H:i:s" }}</div>
                     <a class="context" href="{% url 'color_diary:edit-diary' diary_hash_id=diary.pk|encode %}">{{ diary.context|truncatechars:100 }}</a>
-                    <div class="dropdownMenu" @click="diaryDropdownMenuOnClickHandler($event, {{ diary.pk }})" :style="{ 'color': hoverFixedFontColor({{ diary.pk }}) }">
+                    <div class="dropdownMenu" @click.self="diaryDropdownMenuOnClickHandler($event, {{ diary.pk }})" :style="{ 'color': hoverFixedFontColor({{ diary.pk }}) }">
                         <div class="icon">︙</div>
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ diary.pk }}]['isMenuVisible'] }">
                             <li>

@@ -10,7 +10,7 @@
                 {% if color == default_color %}
                     <div :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-disable transparent" id="{{ color.pk }}"></div>
                 {% else %}
-                    <div @click="colorDropdownMenuOnClickHandler($event, {{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
+                    <div @click.self="colorDropdownMenuOnClickHandler($event, {{ color.pk }})" :style="{ 'background-color': backgroundColor('{{ color }}'), 'border-color': borderColor(backgroundColor('{{ color }}')) }" class="colorContent-button dropdownMenu" id="{{ color.pk }}">
                         <ul class="dropdownMenuItem" :class="{ visible: objects[{{ color.pk }}]['isMenuVisible'] }">
                             <li><a href="{% url 'color_diary:edit-color' color_hash_id=color.pk|encode %}">Edit</a></li>
                             <li><a class="delete" href="{% url 'color_diary:delete-color' color_hash_id=color.pk|encode %}">Delete</a></li>
