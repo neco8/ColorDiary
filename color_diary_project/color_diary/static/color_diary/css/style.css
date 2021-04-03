@@ -582,11 +582,35 @@ a.button-cancel, .button-cancel {
   cursor: pointer;
 }
 #colorIndex .wrapper input[type=radio] + .colorContent-select, #chooseColor form .colorContainer input[type=radio] + .colorContent-select {
-  transition: margin 0.0333333333s ease-in-out, border-width 0.0333333333s ease-in-out;
+  position: relative;
 }
-#colorIndex .wrapper input[type=radio]:checked + .colorContent-select, #chooseColor form .colorContainer input[type=radio]:checked + .colorContent-select {
-  border-width: 5px;
-  margin: -5px;
+#colorIndex .wrapper input[type=radio]:checked + .colorContent-select:after, #chooseColor form .colorContainer input[type=radio]:checked + .colorContent-select:after {
+  content: "";
+  background-color: rgba(255, 255, 255, 0.6);
+  box-sizing: content-box;
+  border: solid;
+  border-width: 3px;
+  border-color: inherit;
+  border-radius: 1.5px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+#colorIndex .wrapper .colorContent-button:hover:after, #chooseColor form .colorContainer .colorContent-button:hover:after {
+  content: "";
+  background-color: rgba(255, 255, 255, 0.6);
+  box-sizing: content-box;
+  border: solid;
+  border-width: 3px;
+  border-color: inherit;
+  border-radius: 1.5px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 }
 #colorIndex .wrapper .colorContent-disable, #chooseColor form .colorContainer .colorContent-disable {
   cursor: not-allowed;
