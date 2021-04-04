@@ -21,17 +21,19 @@ class LoginView(View):
         return render(request, 'color_diary/login.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        email = request.POST['email']
-        password = request.POST['password']
-        user = authenticate(request, email=email, password=password)
+        form = UserLoginForm(data=request.POST)
 
-        if user is not None:
-            login(request, user)
-            return redirect(self.get_redirect_url())
+        if form.is_valid():
+            email = request.POST['email']
+            password = request.POST['password']
+            user = authenticate(request, email=email, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect(self.get_redirect_url())
 
         return render(request, 'color_diary/login.html', {
-            'form': UserLoginForm(initial={'email': email}),
-            'error_message': 'invalid login.'
+            'form': form,
         })
 
     def get_redirect_url(self):

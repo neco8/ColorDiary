@@ -12,7 +12,10 @@
             <div class="wrapper">
                 <span>#</span>
                 {% csrf_token %}
-                <input type="text" name="hex_color" placeholder="Color Code:" required id="id_hex_color" autocomplete="off" maxlength="6" pattern="[0-9a-fA-F]*" value="{{ form.initial.hex_color }}">
+                <div id="hex_color">
+                    <input type="text" name="hex_color" placeholder="Color Code:" required id="id_hex_color" autocomplete="off" maxlength="6" pattern="[0-9a-fA-F]*" value="{{ form.initial.hex_color }}">
+                    {{ form.hex_color.errors }}
+                </div>
                 <div id="preview"></div>
                 {% if form.instance.pk %}
                     <a id="delete" class="button-delete" href="{% url 'color_diary:delete-color' color_hash_id=form.instance.pk|encode %}">Delete</a>
