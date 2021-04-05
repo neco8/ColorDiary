@@ -21,8 +21,8 @@ from color_diary import views
 
 
 router = routers.DefaultRouter()
-router.register(r'colors', views.ColorViewSet)
-router.register(r'diaries', views.DiaryViewSet)
+router.register(r'colors', views.ColorViewSet, basename='color')
+router.register(r'diaries', views.DiaryViewSet, basename='diary')
 router.register(r'users', views.UserViewSet)
 
 
