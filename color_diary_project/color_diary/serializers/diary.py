@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from ..models import Diary
-from . import ColorSerializer, UserSerializer
+from .color import ColorSerializer
+from .user import UserSerializer
 
 
 class DiarySerializer(serializers.ModelSerializer):
