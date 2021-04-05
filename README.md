@@ -1,9 +1,9 @@
 # Emotebook
+![usage](https://user-images.githubusercontent.com/43209256/113474828-44d51380-94ad-11eb-9906-c4d4fa01f834.gif)
+
 https://emotebook.herokuapp.com/
 
 herokuへデプロイしました！
-
-![usage](https://user-images.githubusercontent.com/43209256/113474828-44d51380-94ad-11eb-9906-c4d4fa01f834.gif)
 
 # ところで
 
@@ -25,6 +25,7 @@ herokuへデプロイしました！
 - SPA化
 - 日記一覧画面で、色によってフィルタリング(できれば大まかなフィルタリングも)
 - 日記の表示形式を色だけにしてグリッド表示
+- APIを作成して、flutterでアプリを作成
 
 # 作る動機
 
