@@ -28,7 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'color_diary.apps.ColorDiaryConfig'
+    'color_diary.apps.ColorDiaryConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
