@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import IntegerField, Case, When, Value
+from django.contrib.auth import authenticate
 
 from .models import Diary, Color, User
 from .fields import parse_hex_color
@@ -154,3 +155,9 @@ class UserLoginForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs['placeholder'] = 'Email:'
+
+    def clean_email(self):
+        try:
+            user = User.objects.get_by_natural_key(self.cleaned_data['email'])
+        except User.DoesNotExist:
+            raise ValidationError('Email or Password is invalid.')
