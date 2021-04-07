@@ -61,6 +61,23 @@
     }
 }
 
+.errorlist {
+    li {
+        color: $errorColor;
+        font-size: .5rem;
+        font-family: $fontRaleway;
+        padding: .3rem;
+    }
+
+    li::before {
+        font-family: $fontAwesome;
+        content: '\f071';
+        font-weight: 900;
+        display: inline-block;
+        line-height: 1;
+        padding-right: .2rem;
+    }
+}
 
 .button {
     @extend %button;
@@ -155,6 +172,7 @@ a.button-cancel {
     .colorContent-button {
         @extend %colorContent;
 
+        position: relative;
         &:hover:after {
             content: '';
             background-color: rgba(255, 255, 255, .6);
