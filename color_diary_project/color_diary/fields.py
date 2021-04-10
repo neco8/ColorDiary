@@ -108,14 +108,14 @@ class HexColor:
 
 # note: カラーコードからHexColorへ変換する動作はHexColorField内にしかないからHexColorField内へ移動した。いや、将来文字列から変換するなんて色々使えるだろう。だから外にするべきだ
 def parse_hex_color(hex_color_code: str):
-    # カラーコードは'FFFFFF'や'FFFFFF1.0'など
+    # カラーコードは'#FFFFFF'や'#FFFFFF1.0'など
     # カラーコードをHexColorに変換する
 
     # 記号を取り除いておく
     hex_color_code = re.sub(r'[^a-zA-Z0-9.]', '', hex_color_code)
 
     # fixme: もっといいリストを作る実装あるよね、多分
-    match = re.fullmatch(r'(\w{2})(\w{2})(\w{2})([0-9.]+)?', hex_color_code)
+    match = re.fullmatch(r'(\w{2})(\w{2})(\w{2})([01]\.?[0-9]*)?', hex_color_code)
     if match is None:
         raise ValueError(_('hex_color_code is wrong.'))
     rgb_list = [match.group(1), match.group(2), match.group(3)]
