@@ -1,0 +1,32 @@
+version: '3.9'
+
+volumes:
+  emotebook.db.volume:
+    name: emotebook.db.volume
+  static.volume:
+    name: static.volume
+
+services:
+
+  back:
+    build: ./back
+    container_name: emotebook.back
+    command: /bin/bash ./back/start_django.sh
+    volumes:
+      - static.volume:/code/color_diary_project/static
+    expose:
+      - 8000
+    depends_on:
+      - db
+  
+  nginx:
+    build: ./nginx
+    container_name: emotebook.nginx
+    ports:
+      - $PORT:80
+    volumes:
+      - static.volume:/var/www/static
+    depends_on:
+      - back
+    environment:
+      - PORT
