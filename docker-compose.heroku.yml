@@ -1,8 +1,6 @@
 version: '3.9'
 
 volumes:
-  emotebook.db.volume:
-    name: emotebook.db.volume
   static.volume:
     name: static.volume
 
