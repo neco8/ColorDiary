@@ -84,6 +84,8 @@ class ColorModelForm(forms.ModelForm):
         if self.user is None:
             raise ValidationError(_('the user argument is required.'))
 
+        return super().clean()
+
     def save(self, commit=True):
         # Colorは変更する事ができない。Colorのhex_colorを変更した時は新たにオブジェクトを作るか
         # 既存のオブジェクトをとってきて、現在ログインしているユーザーと関連付ける。
@@ -133,6 +135,8 @@ class DiaryModelForm(forms.ModelForm):
 
         if self.instance.color.users.filter(id=self.instance.user.pk).count() == 0:
             raise ValidationError(_("this is invalid color. you don't have this color."))
+        
+        return super().clean()
 
     def save(self, commit=True):
         # 自身で変更できるのは作成日時だけ。更新日時は変更できない。日記一覧では作成日時のみを表示する。
@@ -155,9 +159,15 @@ class UserLoginForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs['placeholder'] = 'Email:'
+    
+    def clean(self):
+        # ただログインするだけなので、validate_uniqueをTrueにしない必要がある
+        return self.cleaned_data
 
     def clean_email(self):
+        cleaned_data = self.cleaned_data['email']
         try:
-            user = User.objects.get_by_natural_key(self.cleaned_data['email'])
+            user = User.objects.get_by_natural_key(cleaned_data)
         except User.DoesNotExist:
             raise ValidationError('Email or Password is invalid.')
+        return cleaned_data
