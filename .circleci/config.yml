@@ -1,0 +1,69 @@
+version: 2.1
+
+orbs:
+  heroku: circleci/heroku@1.2.6
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python
+      auth:
+        username: 
+        password: $DOCKERHUB_PASSWORD
+
+    steps:
+      - checkout
+
+      - run:
+        name: Install Docker Compose
+        command: |
+          curl -L https://github.com/docker/compose/releases/download/1.29.1/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+          chmod +x ~/docker-compose
+          sudo mv ~/docker-compose /usr/local/bin/docker-compose
+
+      - setup_remote_docker:
+        version: 19.03.13
+
+  test:
+    steps:
+      - run:
+        name: Docker Up
+        command: |
+          docker-compose -f docker-compose.test.yml up --build -d
+      
+      - run:
+        name: Running Tests
+        command: |
+          docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test
+      
+      - run:
+        name: Docker Down
+        command: |
+          docker-compose -f docker-compose.test.yml down -v
+
+  deploy:
+    steps:
+      - run:
+        name: Collect Static
+        command: |
+          python color_diary_project/manage.py collectstatic
+
+      - run:
+        name: Container Registry
+        command: |
+          
+workflows:
+  heroku_deploy:
+    jobs:
+      - build
+      - heroku/deploy-via-git:
+        requires:
+          - build
+        filters:
+          branches:
+            only: main
+
+filters:
+  branches:
+    only:
+      - main

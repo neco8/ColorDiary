@@ -1,0 +1,49 @@
+version: '3.9'
+
+volumes:
+  emotebook.db.volume:
+    name: emotebook.db.volume
+  static.volume:
+    name: static.volume
+
+services:
+
+  db:
+    image: mysql:8.0.23
+    container_name: emotebook.db
+    ports:
+      - 3306:3306
+    volumes:
+      - emotebook.db.volume:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d
+    env_file:
+      - ./test.env
+
+  back:
+    build: .
+    container_name: emotebook.back
+    command: /bin/bash ./start_django.sh
+    volumes:
+      - static.volume:/code/color_diary_project/static
+      - ./color_diary_project:/code/color_diary_project
+    expose:
+      - 8000
+    depends_on:
+      - db
+    env_file:
+      - ./test.env
+    environment:
+      - EMAIL_HOST_PASSWORD
+      - EMAIL_HOST_USER
+  
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile.nginx
+    container_name: emotebook.nginx
+    ports:
+      - 8000:80
+    volumes:
+      - static.volume:/var/www/static
+    depends_on:
+      - back
