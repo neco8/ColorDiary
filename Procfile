@@ -1,1 +1,0 @@
-web: gunicorn --chdir color_diary_project color_diary_project.wsgi
