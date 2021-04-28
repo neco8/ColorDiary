@@ -18,6 +18,6 @@ RUN python -m pip install -r requirements.txt
 
 RUN mkdir -p color_diary_project
 COPY ./color_diary_project/ /code/color_diary_project
-COPY ./back/start_django.sh /code/
+COPY ./start_django.sh /code/
 
 USER www-data
