@@ -23,9 +23,7 @@ jobs:
 
       - setup_remote_docker:
         version: 19.03.13
-
-  test:
-    steps:
+      
       - run:
         name: Docker Up
         command: |
@@ -40,17 +38,6 @@ jobs:
         name: Docker Down
         command: |
           docker-compose -f docker-compose.test.yml down -v
-
-  deploy:
-    steps:
-      - run:
-        name: Collect Static
-        command: |
-          python color_diary_project/manage.py collectstatic
-
-      - run:
-        name: Container Registry
-        command: |
           
 workflows:
   heroku_deploy:
