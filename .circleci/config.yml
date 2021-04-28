@@ -35,6 +35,12 @@ jobs:
             docker-compose -f docker-compose.test.yml up --build -d
   
   test:
+    docker:
+      - image: circleci/python
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+          
     steps:
       - run:
           name: Running Tests
@@ -50,9 +56,9 @@ workflows:
   heroku_deploy:
     jobs:
       - build
-      - test
-        requires:
-          - build
+      - test:
+          requires:
+            - build
       - heroku/deploy-via-git:
           requires:
             - test
