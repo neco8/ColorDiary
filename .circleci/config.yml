@@ -32,13 +32,13 @@ jobs:
       - run:
           name: Run Test
           command: |
-            DB_NAME=color_diary_db
-            DB_HOST=db
-            DB_USER=root
-            DB_PASSWORD=rootpassword
-            PYTHONDONTWRITEBYTECODE=1
-            PYTHONUNBUFFERED=1
-            SECRET_KEY=fortestpurpose
+            DB_NAME="color_diary_db"
+            DB_HOST="db"
+            DB_USER="root"
+            DB_PASSWORD="rootpassword"
+            PYTHONDONTWRITEBYTECODE="1"
+            PYTHONUNBUFFERED="1"
+            SECRET_KEY="fortestpurpose"
             until python color_diary_project/manage.py test ; do
               sleep 10
             done
