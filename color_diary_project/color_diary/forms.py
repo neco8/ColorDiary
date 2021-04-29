@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import IntegerField, Case, When, Value
 from django.contrib.auth import authenticate
 
@@ -16,6 +17,7 @@ class ChooseColorForm(forms.Form):
     color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color, queryset=None)
     color_level = forms.IntegerField(
         initial=DEFAULT_COLOR_LEVEL,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
         widget=forms.NumberInput(attrs={
             'type': 'range',
             'step': '1',
