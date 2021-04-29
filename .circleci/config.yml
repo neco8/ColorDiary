@@ -27,19 +27,24 @@ jobs:
 
       - setup_remote_docker:
           version: 19.03.13
+          
+      - run:
+        name: Ls
+        command: ls -a color_diary_project
+
+      - run:
+          name: Build Up
+          command: |
+            docker-compose -f docker-compose.test.yml build
+            docker-compose -f docker-compose.test.yml up -d
   
       - run:
           name: Running Tests
           command: |
-            ls -a color_diary_project/
-            docker-compose -f docker-compose.test.yml build
-            docker-compose -f docker-compose.test.yml up -d && docker-compose -f docker-compose.test.yml exec back ls -a color_diary_project
-
             until docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary ; do
                sleep 30
             done
 
-            docker-compose -f docker-compose.test.yml logs
             docker-compose -f docker-compose.test.yml down -v
       
 workflows:
