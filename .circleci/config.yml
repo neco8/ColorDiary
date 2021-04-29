@@ -10,7 +10,7 @@ executors:
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
-    working_directory: code
+    working_directory: ~/code
 
 jobs:
   build:
