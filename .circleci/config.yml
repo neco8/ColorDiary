@@ -29,9 +29,9 @@ jobs:
           version: 19.03.13
           
       - run:
-        name: Ls
-        command: |
-          ls -a color_diary_project
+          name: Ls
+          command: |
+            ls -a color_diary_project
 
       - run:
           name: Build Up
