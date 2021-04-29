@@ -34,17 +34,11 @@ jobs:
             docker-compose -f docker-compose.test.yml build
             docker-compose -f docker-compose.test.yml up -d
 
-            for i in $(seq 1 10); do
-               echo "$i 回目"
-               docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary && break
-               sleep 10 && /bin/false
+            NEXT_WAIT_TIME=0
+            until docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary || [ $NEXT_WAIT_TIME -eq 4 ]; do
+               sleep $(( NEXT_WAIT_TIME++ ))
             done
 
-            if [ $? -eq 0 ]; then
-                echo "Success!"
-            else
-                echo "Give up..."
-            fi
             docker-compose -f docker-compose.test.yml down -v
       
 workflows:
