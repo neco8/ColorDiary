@@ -5,56 +5,48 @@ orbs:
 
 executors:
   my-executor:
+
+jobs:
+  test:
     docker:
       - image: circleci/python
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
-    working_directory: ~/code
+      - image: circleci/mysql
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          MYSQL_ROOT_PASSWORD=rootpassword
 
-jobs:
-  build:
-    executor: my-executor
+    environment:
+      DB_NAME=color_diary_db
+      DB_HOST=db
+      DB_USER=root
+      DB_PASSWORD=rootpassword
+
+    working_directory: ~/code
     steps:
       - checkout
+      
+      - run:
+          name: Pip Install
+          command: |
+            pip install -r requirements.txt
 
       - run:
-          name: Install Docker Compose
+          name: Run Test
           command: |
-            curl -L https://github.com/docker/compose/releases/download/1.29.1/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
-
-      - setup_remote_docker:
-          version: 19.03.13
-          
-      - run:
-          name: Ls
-          command: |
-            ls -a color_diary_project
-
-      - run:
-          name: Build Up
-          command: |
-            docker-compose -f docker-compose.test.yml build
-            docker-compose -f docker-compose.test.yml up -d
-  
-      - run:
-          name: Running Tests
-          command: |
-            until docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary ; do
-               sleep 30
-            done
-
-            docker-compose -f docker-compose.test.yml down -v
+            python color_diary_project/manage.py test
       
 workflows:
   heroku_deploy:
     jobs:
-      - build
+      - test
       - heroku/deploy-via-git:
           requires:
-            - build
+            - test
           filters:
             branches:
               only: main
