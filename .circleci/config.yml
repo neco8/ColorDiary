@@ -30,14 +30,14 @@ jobs:
       - run:
           name: Running Tests
           command: |
+            ls -a color_diary_project/
             docker-compose -f docker-compose.test.yml build
             docker-compose -f docker-compose.test.yml up
-            MAX_RETRY=10
-            INTERVAL=10
-            for i in $(seq 1 $MAX_RETRY); do
+
+            for i in $(seq 1 10); do
                echo "$i 回目"
                docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary && break
-               sleep $INTERVAL && /bin/false
+               sleep 10 && /bin/false
             done
 
             if [ $? -eq 0 ]; then
