@@ -8,10 +8,13 @@ from ..models import Color, Diary
 from ..forms import ChooseColorForm, ColorModelForm, DiaryModelForm
 from ..fields import parse_hex_color
 from .constant import *
+from ..signals import hex_color_list
 
 
 
 class ChooseColorFormTests(TestCase):
+    default_color_string_list = ['#FFFFFF-0.0'] + [f'#{color_code}-1.0' for color_code in hex_color_list]
+    
     def setUp(self) -> None:
         self.red = Color.objects.create(hex_color=parse_hex_color('ff0000'))
         self.green = Color.objects.create(hex_color=parse_hex_color('00ff00'))
@@ -20,36 +23,45 @@ class ChooseColorFormTests(TestCase):
 
         self.user.colors.add(self.red, self.green)
 
-    def test_is_valid(self):
+    def test_is_valid_true_with_valid_value(self):
         form = ChooseColorForm(login_user=self.user, data={
             'color': self.red,
             'color_level': 10,
         })
         is_valid = form.is_valid()
-        self.assertQuerysetEqual(form.fields['color'].queryset, ['<Color: #FFFFFF-0.0>', '<Color: #FF0000-1.0>', '<Color: #00FF00-1.0>'])
+        self.assertEqual(
+            set([str(query) for query in form.fields['color'].queryset]),
+            set(self.default_color_string_list + ['#FF0000-1.0', '#00FF00-1.0'])
+        )
         self.assertTrue(is_valid)
 
-    def test_is_not_valid_with_wrong_color(self):
+    def test_is_valid_false_with_wrong_color(self):
         form = ChooseColorForm(login_user=self.user, data={
             'color': self.black,
             'color_level': 10
         })
         is_valid = form.is_valid()
-        self.assertQuerysetEqual(form.fields['color'].queryset, ['<Color: #FFFFFF-0.0>', '<Color: #FF0000-1.0>', '<Color: #00FF00-1.0>'])
+        self.assertEqual(
+            set([str(query) for query in form.fields['color'].queryset]),
+            set(self.default_color_string_list + ['#FF0000-1.0', '#00FF00-1.0'])
+        )
         self.assertFalse(is_valid)
         self.assertEqual(form.errors['color'], ['Select a valid choice. That choice is not one of the available choices.'])
 
-    def test_is_not_valid_with_wrong_color_level(self):
+    def test_is_valid_false_with_wrong_color_level(self):
         form = ChooseColorForm(login_user=self.user, data={
             'color': self.red,
             'color_level': 100,
         })
         is_valid = form.is_valid()
-        self.assertQuerysetEqual(form.fields['color'].queryset, ['<Color: #FFFFFF-0.0>', '<Color: #FF0000-1.0>', '<Color: #00FF00-1.0>'])
+        self.assertEqual(
+            set([str(query) for query in form.fields['color'].queryset]),
+            set(self.default_color_string_list + ['#FF0000-1.0', '#00FF00-1.0'])
+        )
         self.assertFalse(is_valid)
-        self.assertEqual(form.errors['color_level'], ['Select a valid choice. 100 is not one of the available choices.'])
+        self.assertEqual(form.errors['color_level'], ['Ensure this value is less than or equal to 10.'])
 
-    def test_do_not_give_user_argument(self):
+    def test_is_valid_false_without_user(self):
         with self.assertRaisesMessage(ValueError, expected_message='the user argument is not given.'):
             form = ChooseColorForm(data={
                 'color': self.red,
