@@ -19,6 +19,7 @@ jobs:
           password: $DOCKERHUB_PASSWORD
         environment:
           MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_HOST: 127.0.0.1
 
     working_directory: ~/code
     steps:
@@ -32,12 +33,6 @@ jobs:
       - run:
           name: Run Test
           command: |
-            DB_NAME="color_diary_db"
-            DB_HOST="db"
-            DB_USER="root"
-            DB_PASSWORD="rootpassword"
-            PYTHONDONTWRITEBYTECODE=1
-            PYTHONUNBUFFERED=1
             until python color_diary_project/manage.py test ; do
               sleep 10
             done
