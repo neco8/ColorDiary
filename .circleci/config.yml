@@ -18,7 +18,7 @@ jobs:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
         environment:
-          MYSQL_ROOT_PASSWORD=rootpassword
+          MYSQL_ROOT_PASSWORD: rootpassword
 
     working_directory: ~/code
     steps:
@@ -36,11 +36,12 @@ jobs:
             DB_HOST="db"
             DB_USER="root"
             DB_PASSWORD="rootpassword"
-            PYTHONDONTWRITEBYTECODE="1"
-            PYTHONUNBUFFERED="1"
+            PYTHONDONTWRITEBYTECODE=1
+            PYTHONUNBUFFERED=1
             SECRET_KEY="fortestpurpose"
-            python color_diary_project/manage.py test
-            echo $SECRET_KEY
+            python color_diary_project/manage.py test ; do
+              sleep 10
+            done
       
 workflows:
   heroku_deploy:
