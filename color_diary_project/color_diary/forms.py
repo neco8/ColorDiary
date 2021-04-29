@@ -141,7 +141,7 @@ class DiaryModelForm(forms.ModelForm):
     def save(self, commit=True):
         # 自身で変更できるのは作成日時だけ。更新日時は変更できない。日記一覧では作成日時のみを表示する。
         now = timezone.now()
-        if self.instance.created_at == '':
+        if self.cleaned_data['created_at'] is None:
             self.instance.created_at = now
 
         if commit:

@@ -2,6 +2,7 @@ import re
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from ..models import Color, Diary
 from ..forms import ChooseColorForm, ColorModelForm, DiaryModelForm
@@ -169,75 +170,91 @@ class DiaryModelFormTests(TestCase):
         self.red = Color.objects.create(hex_color=parse_hex_color('ff0000'))
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user.colors.add(self.red)
+        self.now = timezone.now()
 
         self.black = Color.objects.create(hex_color=parse_hex_color('000000'))
 
-    def test_is_valid(self):
+    def test_is_valid_with_valid_value(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.red,
-            color_level=10,
-            data={'context': CONTEXT})
-        is_valid = form.is_valid()
-        self.assertTrue(is_valid)
+            data={
+                'color': self.red.id,
+                'color_level': 10,
+                'created_at': '',
+                'context': CONTEXT
+            })
+        form.is_valid()
+        print(form.errors)
+        self.assertTrue(form.is_valid())
 
     def test_do_not_give_user_argument(self):
-        form = DiaryModelForm(
-            color=self.red,
-            color_level=10,
-            data={'context': CONTEXT})
-        form.is_valid()
-        self.assertEqual(form.errors['__all__'], ['the user argument is required.'])
+        with self.assertRaises(Diary.user.RelatedObjectDoesNotExist):
+            form = DiaryModelForm(
+                color=self.red,
+                color_level=10,
+                data={
+                    'color': self.red.id,
+                    'color_level': 10,
+                    'created_at': '',
+                    'context': CONTEXT
+                })
+            form.is_valid()
+            self.assertTrue(['the user argument is required.'] in form.errors.values())
 
-    def test_do_not_give_color_argument(self):
-        form = DiaryModelForm(
-            user=self.user,
-            color_level=10,
-            data={'context': CONTEXT})
-        form.is_valid()
-        self.assertEqual(form.errors['__all__'], ['the color argument is required.'])
+    def test_do_not_give_color(self):
+        with self.assertRaises(Diary.color.RelatedObjectDoesNotExist):
+            form = DiaryModelForm(
+                user=self.user,
+                color_level=10,
+                data={
+                    'color_level': 10,
+                    'created_at': '',
+                    'context': CONTEXT
+                })
+            form.is_valid()
 
     def test_do_not_give_color_level_argument(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.red,
-            data={'context': CONTEXT})
+            data={
+                'color': self.red.id,
+                'created_at': '',
+                'context': CONTEXT
+            })
         form.is_valid()
-        self.assertEqual(form.errors['__all__'], ['the color_level argument is required.'])
+        self.assertEqual(form.errors['color_level'], ['This field is required.'])
 
-    def test_cannot_set_color(self):
-        form = DiaryModelForm(
-            user=self.user,
-            color=self.red,
-            color_level=10
-        )
-        search_result = re.search(r'color', str(form))
-        self.assertIsNone(search_result)
-
-    def test_cannot_set_color_level(self):
-        form = DiaryModelForm(
-            user=self.user,
-            color=self.red,
-            color_level=10
-        )
-        search_result = re.search(r'color_level', str(form))
-        self.assertIsNone(search_result)
-
-    def test_is_not_valid_with_wrong_user_and_color(self):
+    def test_is_invalid_with_wrong_color(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.black,
-            color_level=10,
-            data={}
+            data={
+                'color': self.black.id,
+                'color_level': 10,
+                'created_at': '',
+                'context': CONTEXT
+            }
         )
         form.is_valid()
-        self.assertEqual(form.errors['__all__'], ["this is invalid color. you don't have this color."])
+        self.assertTrue(["this is invalid color. you don't have this color."] in form.errors.values())
 
     def test_save(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.red,
             color_level=10,
-            data={'context': CONTEXT}
+            data={
+                'color': self.red.id,
+                'color_level': 10,
+                'created_at': '',
+                'context': CONTEXT
+            }
         )
-        form.save()
+        if form.is_valid():
+            saved_diary = form.save()
+        diary = Diary.objects.get(user=self.user, id=saved_diary.id)
+        
+        self.assertEqual(diary.color, self.red)
+        self.assertEqual(diary.color_level, 10)
