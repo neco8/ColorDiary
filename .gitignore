@@ -1,4 +1,8 @@
-color_diary_project/color_diary/static/color_diary/css
+color_diary_project/color_diary/static/color_diary/css/
+color_diary_project/static/
+docker-compose.local.yml
+db/
+nginx/Dockerfile.nginx
 .idea
 .vscode
 

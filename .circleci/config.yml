@@ -1,0 +1,52 @@
+version: 2.1
+
+orbs:
+  heroku: circleci/heroku@1.2.6
+
+executors:
+  my-executor:
+
+jobs:
+  test:
+    docker:
+      - image: circleci/python
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+      - image: circleci/mysql:5
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_HOST: 127.0.0.1
+
+    working_directory: ~/code
+    steps:
+      - checkout
+      
+      - run:
+          name: Pip Install
+          command: |
+            pip install -r requirements.txt
+
+      - run:
+          name: Run Test
+          command: |
+            python color_diary_project/manage.py test color_diary
+      
+workflows:
+  heroku_deploy:
+    jobs:
+      - test
+      - heroku/deploy-via-git:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+
+filters:
+  branches:
+    only:
+      - main
