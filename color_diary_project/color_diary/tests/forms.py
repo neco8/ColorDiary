@@ -170,11 +170,10 @@ class DiaryModelFormTests(TestCase):
         self.red = Color.objects.create(hex_color=parse_hex_color('ff0000'))
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user.colors.add(self.red)
-        self.now = timezone.now()
 
         self.black = Color.objects.create(hex_color=parse_hex_color('000000'))
 
-    def test_is_valid_with_valid_value(self):
+    def test_is_valid_true_with_valid_value(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.red,
@@ -188,7 +187,7 @@ class DiaryModelFormTests(TestCase):
         print(form.errors)
         self.assertTrue(form.is_valid())
 
-    def test_do_not_give_user_argument(self):
+    def test_is_valid_false_without_user(self):
         with self.assertRaises(Diary.user.RelatedObjectDoesNotExist):
             form = DiaryModelForm(
                 color=self.red,
@@ -202,7 +201,7 @@ class DiaryModelFormTests(TestCase):
             form.is_valid()
             self.assertTrue(['the user argument is required.'] in form.errors.values())
 
-    def test_do_not_give_color(self):
+    def test_is_valid_false_without_color(self):
         with self.assertRaises(Diary.color.RelatedObjectDoesNotExist):
             form = DiaryModelForm(
                 user=self.user,
@@ -214,7 +213,7 @@ class DiaryModelFormTests(TestCase):
                 })
             form.is_valid()
 
-    def test_do_not_give_color_level_argument(self):
+    def test_is_valid_false_without_color_level(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.red,
@@ -226,7 +225,7 @@ class DiaryModelFormTests(TestCase):
         form.is_valid()
         self.assertEqual(form.errors['color_level'], ['This field is required.'])
 
-    def test_is_invalid_with_wrong_color(self):
+    def test_is_valid_false_with_wrong_color(self):
         form = DiaryModelForm(
             user=self.user,
             color=self.black,
