@@ -28,25 +28,14 @@ jobs:
           version: 19.03.13
       
       - run:
-          name: Docker Up
+          name: Docker Build
           command: |
-            docker-compose -f docker-compose.test.yml up --build -d
+            docker-compose -f docker-compose.test.yml build
   
-  test:
-    executor: my-executor
-    steps:
-      - checkout
-
-      - setup_remote_docker:
-          version: 19.03.13
-      
-
       - run:
           name: Running Tests
           command: |
-            docker-compose --version
-            docker-compose -f docker-compose.test.yml ps
-            docker-compose -f docker-compose.test.yml logs
+            docker-compose -f docker-compose.test.yml up -d
             docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary
       
       - run:
@@ -58,12 +47,9 @@ workflows:
   heroku_deploy:
     jobs:
       - build
-      - test:
-          requires:
-            - build
       - heroku/deploy-via-git:
           requires:
-            - test
+            - build
           filters:
             branches:
               only: main
