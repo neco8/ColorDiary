@@ -67,14 +67,14 @@ class ColorModelFormTests(TestCase):
         self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
 
 
-    def test_is_valid(self):
+    def test_is_valid_true_with_valid_value(self):
         form = ColorModelForm(user=self.user1, data={
             'hex_color': 'ffffff',
         })
         is_valid = form.is_valid()
         self.assertTrue(is_valid)
 
-    def test_create_color_that_is_already_created(self):
+    def test_creating_color_already_created_by_other_user(self):
         form = ColorModelForm(user=self.user2, data={
             'hex_color': 'ff0000',
         })
@@ -83,7 +83,7 @@ class ColorModelFormTests(TestCase):
 
         self.assertEqual(self.user2.colors.get(hex_color=parse_hex_color('ff0000')).pk, self.red.pk)
 
-    def test_delete_color_when_previous_color_does_not_have_users_after_editing_color(self):
+    def test_deleting_color_which_belongs_to_one_user(self):
         form = ColorModelForm(user=self.user1, instance=self.red, data={
             'hex_color': '00ff00',
         })
@@ -92,7 +92,7 @@ class ColorModelFormTests(TestCase):
 
         self.assertEqual(Color.objects.filter(hex_color=parse_hex_color('ff0000')).count(), 0)
 
-    def test_editing_color_does_not_affect_when_color_belongs_to_some_users(self):
+    def test_editing_color_has_no_effect_when_it_belongs_to_other_users(self):
         self.red.users.add(self.user2)
         form = ColorModelForm(user=self.user1, instance=self.red, data={
             'hex_color': '0f0f0f',
@@ -101,28 +101,28 @@ class ColorModelFormTests(TestCase):
             form.save()
         self.assertEqual(self.user2.colors.filter(hex_color=parse_hex_color('ff0000')).count(), 1)
 
-    def test_is_not_valid_with_not_hex_color_code(self):
-        with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
-            form = ColorModelForm(user=self.user1, data={
-                'hex_color': 'zzzzzz',
-            })
-            form.is_valid()
+    def test_is_valid_false_with_not_hex_color_code(self):
+        form = ColorModelForm(user=self.user1, data={
+            'hex_color': 'zzzzzz',
+        })
+        form.is_valid()
+        self.assertEqual(form.errors['hex_color'], ['RGB must be hex.'])
 
-    def test_is_not_valid_with_wrong_hex_color(self):
+    def test_is_valid_false_with_invalid_color_code(self):
         form = ColorModelForm(user=self.user1, data={
             'hex_color': 'ffffffffffffffffffffffff',
         })
         is_valid = form.is_valid()
         self.assertFalse(is_valid)
-        self.assertEqual(form.errors['hex_color'], ['hex color code is too long.'])
+        self.assertEqual(form.errors['hex_color'], ['Color code is too long.'])
 
-    def test_is_not_valid_with_alpha_hex_color(self):
+    def test_is_valid_false_with_alpha_hex_color(self):
         form = ColorModelForm(user=self.user1, data={
             'hex_color': 'ffffff0.5',
         })
         is_valid = form.is_valid()
         self.assertFalse(is_valid)
-        self.assertEqual(form.errors['hex_color'], ['hex color code is too long.'])
+        self.assertEqual(form.errors['hex_color'], ['Color code is too long.'])
 
     def test_save(self):
         form = ColorModelForm(user=self.user1, data={
@@ -134,18 +134,18 @@ class ColorModelFormTests(TestCase):
         self.assertEqual(color.users.all().count(), 1)
         self.assertEqual(color.hex_color, parse_hex_color('f0f0f0'))
 
-    def test_do_not_show_alpha(self):
+    def test_not_showing_alpha(self):
         form = ColorModelForm(user=self.user1, instance=self.red)
         form_string = str(form)
         search_result = re.search(r'"FF0000"', form_string)
         self.assertIsNotNone(search_result)
 
-    def test_do_not_give_user_argument(self):
+    def test_is_valid_false_without_user(self):
         form = ColorModelForm(data={'hex_color': '888888'})
         form.is_valid()
         self.assertEqual(form.errors['__all__'], ['the user argument is required.'])
 
-    def test_can_not_edit_default_color(self):
+    def test_cannot_edit_default_color(self):
         form = ColorModelForm(
             user=self.user1,
             instance=Color.get_default_color(),
@@ -154,7 +154,7 @@ class ColorModelFormTests(TestCase):
         self.assertIsNotNone(search_result)
 
 
-    def test_can_not_save_and_change_default_color(self):
+    def test_cannot_save_and_change_default_color(self):
         form = ColorModelForm(
             user=self.user1,
             instance=Color.get_default_color(),
