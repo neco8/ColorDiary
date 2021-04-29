@@ -13,7 +13,7 @@ jobs:
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
-      - image: circleci/mysql
+      - image: circleci/mysql:5
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
