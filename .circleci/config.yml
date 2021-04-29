@@ -38,7 +38,7 @@ jobs:
             DB_PASSWORD=rootpassword
             PYTHONDONTWRITEBYTECODE=1
             PYTHONUNBUFFERED=1
-            SECRET_KEY=p2emxv^0kt86r7uw-x7yh@p1&jgsb^tzr+an0$a3@6djxm_&5s
+            SECRET_KEY=fortestpurpose
             until python color_diary_project/manage.py test ; do
               sleep 10
             done
