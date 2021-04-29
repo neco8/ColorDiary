@@ -20,15 +20,6 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD=rootpassword
 
-    environment:
-      DB_NAME=color_diary_db
-      DB_HOST=db
-      DB_USER=root
-      DB_PASSWORD=rootpassword
-      PYTHONDONTWRITEBYTECODE=1
-      PYTHONUNBUFFERED=1
-      SECRET_KEY=p2emxv^0kt86r7uw-x7yh@p1&jgsb^tzr+an0$a3@6djxm_&5s
-
     working_directory: ~/code
     steps:
       - checkout
@@ -40,6 +31,14 @@ jobs:
 
       - run:
           name: Run Test
+          environment:
+            DB_NAME=color_diary_db
+            DB_HOST=db
+            DB_USER=root
+            DB_PASSWORD=rootpassword
+            PYTHONDONTWRITEBYTECODE=1
+            PYTHONUNBUFFERED=1
+            SECRET_KEY=p2emxv^0kt86r7uw-x7yh@p1&jgsb^tzr+an0$a3@6djxm_&5s
           command: |
             until python color_diary_project/manage.py test ; do
               sleep 10
