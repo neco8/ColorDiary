@@ -25,6 +25,9 @@ jobs:
       DB_HOST=db
       DB_USER=root
       DB_PASSWORD=rootpassword
+      PYTHONDONTWRITEBYTECODE=1
+      PYTHONUNBUFFERED=1
+      SECRET_KEY=p2emxv^0kt86r7uw-x7yh@p1&jgsb^tzr+an0$a3@6djxm_&5s
 
     working_directory: ~/code
     steps:
@@ -38,7 +41,9 @@ jobs:
       - run:
           name: Run Test
           command: |
-            python color_diary_project/manage.py test
+            until python color_diary_project/manage.py test ; do
+              sleep 10
+            done
       
 workflows:
   heroku_deploy:
