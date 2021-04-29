@@ -33,9 +33,7 @@ jobs:
       - run:
           name: Run Test
           command: |
-            until python color_diary_project/manage.py test color_diary ; do
-              sleep 10
-            done
+            python color_diary_project/manage.py test color_diary
       
 workflows:
   heroku_deploy:
