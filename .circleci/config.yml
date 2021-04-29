@@ -31,9 +31,8 @@ jobs:
           name: Running Tests
           command: |
             docker-compose -f docker-compose.test.yml up --build -d
-            docker-compose -f docker-compose.test.yml exec back pwd
-            docker-compose -f docker-compose.test.yml exec back cd color_diary_project && ls -a
-            docker-compose -f docker-compose.test.yml exec back python color_diary_project/manage.py test color_diary
+            docker-compose -f docker-compose.test.yml exec back ls -a color_diary_project/
+            docker-compose -f docker-compose.test.yml exec back python ./color_diary_project/manage.py test color_diary
             docker-compose -f docker-compose.test.yml down -v
       
 workflows:
