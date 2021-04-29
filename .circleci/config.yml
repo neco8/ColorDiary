@@ -30,7 +30,8 @@ jobs:
           
       - run:
         name: Ls
-        command: ls -a color_diary_project
+        command: |
+          ls -a color_diary_project
 
       - run:
           name: Build Up
