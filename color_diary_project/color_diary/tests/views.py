@@ -291,7 +291,6 @@ class DeleteColorViewTests(TestCase):
 
 
 class EditDiaryViewTests(TestCase):
-# todo: 自動保存されるかどうか。恐らくvue.jsの方で仕組みを作る事になる
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.user_color1 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
@@ -301,20 +300,15 @@ class EditDiaryViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_redirect_to_choose_color_view_when_no_session_data(self):
-        hash_id = get_hashids().encode(CREATE)
-        response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
-        self.assertRedirects(response, reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
-
-    def test_edit_diary_view_with_not_login_user(self):
+    def test_edit_diary_view_with_anonymous_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(CREATE)
         edit_diary_url = reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id})
         response_before_login = self.client.get(edit_diary_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={edit_diary_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={edit_diary_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_create_diary(self):
+    def test_get_request_when_creating_diary(self):
         hash_id = get_hashids().encode(CREATE)
 
         session = self.client.session
@@ -326,7 +320,7 @@ class EditDiaryViewTests(TestCase):
         form = response.context['form']
         self.assertFalse(form.is_bound)
 
-    def test_edit_diary(self):
+    def test_get_request_when_editing_diary(self):
         hash_id = get_hashids().encode(self.diary_user1.pk)
 
         session = self.client.session
@@ -335,19 +329,18 @@ class EditDiaryViewTests(TestCase):
         session.save()
 
         response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        form = response.context['form']
+        self.assertFalse(form.is_bound)
         self.assertContains(response, self.diary_user1.context)
 
     def test_save(self):
         hash_id = get_hashids().encode(CREATE)
         now = timezone.now()
 
-        session = self.client.session
-        session['color_id'] = self.user_color1.pk
-        session['color_level'] = 3
-        session.save()
-
         self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}), data={
-            'context': 'this is saving context.'
+            'context': CONTEXT,
+            'color': self.user_color1.pk,
+            'color_level': 3,
         })
         diary = Diary.objects.all(user=self.user).order_by('-created_at')[0]
         self.assertEqual(diary.user, self.user)
@@ -355,22 +348,19 @@ class EditDiaryViewTests(TestCase):
         self.assertEqual(diary.color_level, 3)
         self.assertTrue(now - diary.created_at < timezone.timedelta(seconds=1))
         self.assertTrue(now - diary.updated_at < timezone.timedelta(seconds=1))
-        self.assertEqual(diary.context, 'this is saving context.')
+        self.assertEqual(diary.context, CONTEXT)
 
     def test_redirect_to_diary_index_view_after_saving_object(self):
         hash_id = get_hashids().encode(self.diary_user1.pk)
 
-        session = self.client.session
-        session['color_id'] = self.user_color1.pk
-        session['color_level'] = 3
-        session.save()
-
         response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}), data={
             'context': CONTEXT,
+            'color': self.user_color1.pk,
+            'color_level': 3,
         })
         self.assertRedirects(response, reverse('color_diary:diary-index'))
 
-    def test_get_return_http_404_when_given_invalid_hash_id(self):
+    def test_get_return_http_404_with_invalid_hash_id(self):
         session = self.client.session
         session['color_id'] = self.user_color1.pk
         session['color_level'] = 3
@@ -379,16 +369,14 @@ class EditDiaryViewTests(TestCase):
         response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': 'tekitounaMOJIretsu'}))
         self.assertEqual(response.status_code, 404)
 
-    def test_post_return_http_404_when_given_invalid_hash_id(self):
-        session = self.client.session
-        session['color_id'] = self.user_color1.pk
-        session['color_level'] = 3
-        session.save()
-
-        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': 'tekitounaMOJIretsu'}))
+    def test_post_return_404_with_invalid_hash_id(self):
+        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': 'tekitounaMOJIretsu'}), data={
+            'color': self.user_color1.pk,
+            'color_level': 3
+        })
         self.assertEqual(response.status_code, 404)
 
-    def test_get_return_http_404_when_given_invalid_diary_id(self):
+    def test_get_return_404_with_invalid_diary_id(self):
         hash_id = get_hashids().encode(987315937)
 
         session = self.client.session
@@ -399,15 +387,13 @@ class EditDiaryViewTests(TestCase):
         response = self.client.get(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
 
-    def test_post_return_http_404_when_given_invalid_diary_id(self):
+    def test_post_return_404_with_invalid_diary_id(self):
         hash_id = get_hashids().encode(987315937)
 
-        session = self.client.session
-        session['color_id'] = self.user_color1.pk
-        session['color_level'] = 3
-        session.save()
-
-        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
+        response = self.client.post(reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}), data={
+            'color': self.user_color1.pk,
+            'color_level': 3
+        })
         self.assertEqual(response.status_code, 404)
 
 
