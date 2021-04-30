@@ -1,5 +1,10 @@
+import re
+import logging
+
 from django.test import TestCase
 from django.urls import reverse
+from django.core.signing import dumps
+from django.core import mail
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME, authenticate
 from django.utils import timezone
 
@@ -9,6 +14,9 @@ from .constant import *
 from ..utils import get_hashids
 from ..forms import DEFAULT_COLOR_LEVEL
 from ..views import CREATE
+
+
+logger = logging.getLogger(__name__)
 
 
 class LoginViewTests(TestCase):
@@ -64,30 +72,21 @@ class LogoutViewTests(TestCase):
 
 
 class RegisterViewTests(TestCase):
-    def test_right_redirect_after_succeeding_register(self):
+    def test_right_redirect_after_pre_register(self):
         response = self.client.post(reverse('color_diary:register'), data={
             'email': EXAMPLE_EMAIL,
             'password1': PASSWORD1,
             'password2': PASSWORD1,
         })
-        self.assertRedirects(response, reverse('color_diary:diary-index'))
+        self.assertRedirects(response, reverse('color_diary:register-done'))
 
-    def test_empty_form_with_get_request(self):
+    def test_get_request(self):
         response = self.client.get(reverse('color_diary:register'))
         form = response.context['form']
         self.assertIsNotNone(form.fields['email'])
         self.assertIsNotNone(form.fields['password1'])
         self.assertIsNotNone(form.fields['password2'])
         self.assertFalse(form.is_bound)
-
-    def test_save_with_valid_data(self):
-        response = self.client.post(reverse('color_diary:register'), data={
-            'email': EXAMPLE_EMAIL,
-            'password1': PASSWORD1,
-            'password2': PASSWORD1,
-        })
-        user = authenticate(response.request, email=EXAMPLE_EMAIL, password=PASSWORD1)
-        self.assertIsNotNone(user)
 
     def test_error_message_with_invalid_data(self):
         response = self.client.post(reverse('color_diary:register'), data={
@@ -101,12 +100,38 @@ class RegisterViewTests(TestCase):
         self.assertEqual(form.cleaned_data['password1'], PASSWORD1)
         self.assertIsNone(form.cleaned_data.get('password2', None))
 
-    def test_login_after_succeeding_register(self):
-        response = self.client.post(reverse('color_diary:register'), data={
+    def test_email_after_pre_register(self):
+        mail.outbox = []
+        self.client.post(reverse('color_diary:register'), data={
             'email': EXAMPLE_EMAIL,
             'password1': PASSWORD1,
             'password2': PASSWORD1,
         })
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_save_user_after_succeeding_register(self):
+        self.client.post(reverse('color_diary:register'), data={
+            'email': EXAMPLE_EMAIL,
+            'password1': PASSWORD1,
+            'password2': PASSWORD1,
+        })
+        mail_message = mail.outbox[-1].body
+        token = re.search(r'register/(.+?)/', mail_message).group(1)
+        response = self.client.get(reverse('color_diary:register-complete', kwargs={'token': token}))
+
+        user = authenticate(response.request, email=EXAMPLE_EMAIL, password=PASSWORD1)
+        self.assertIsNotNone(user)
+
+    def test_login_after_succeeding_register(self):
+        self.client.post(reverse('color_diary:register'), data={
+            'email': EXAMPLE_EMAIL,
+            'password1': PASSWORD1,
+            'password2': PASSWORD1,
+        })
+        mail_message = mail.outbox[-1].body
+        token = re.search(r'register/(.+?)/', mail_message).group(1)
+        response = self.client.get(reverse('color_diary:register-complete', kwargs={'token': token}))
+
         user = authenticate(response.request, email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.assertEqual(self.client.session.get('_auth_user_id'), str(user.pk))
 
