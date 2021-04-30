@@ -412,35 +412,35 @@ class EditColorViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_edit_color_view_with_not_login_user(self):
+    def test_edit_color_view_with_anonymous_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(CREATE)
         edit_color_url = reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id})
         response_before_login = self.client.get(edit_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={edit_color_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={edit_color_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_get_return_404_when_editing_default_color(self):
+    def test_get_request_404_when_editing_default_color(self):
         hash_id = get_hashids().encode(self.default_color.pk)
         response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
 
-    def test_post_return_404_when_editing_default_color(self):
+    def test_post_request_404_when_editing_default_color(self):
         hash_id = get_hashids().encode(self.default_color.pk)
         response = self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={'hex_color': 'f8f8f8'})
         self.assertEqual(response.status_code, 404)
 
-    def test_initial_hex_color_with_get_when_creating_color(self):
+    def test_initial_hex_color_with_get_request_when_creating_color(self):
         hash_id = get_hashids().encode(CREATE)
         response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
         self.assertContains(response, '000000')
 
-    def test_hex_color_with_get_when_editing_color(self):
+    def test_initial_hex_color_with_get_request_when_editing_color(self):
         hash_id = get_hashids().encode(self.user_color1.pk)
         response = self.client.get(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}))
         self.assertContains(response, 'FF0000')
 
-    def test_post_with_valid_hex_color(self):
+    def test_post_request_with_valid_hex_color(self):
         hash_id = get_hashids().encode(self.user_color1.pk)
 
         session = self.client.session
@@ -453,7 +453,7 @@ class EditColorViewTests(TestCase):
         self.assertEqual(self.user2_color1.users.all().count(), 2)
         self.assertEqual(self.user_color1.users.all().count(), 0)
 
-    def test_post_with_invalid_hex_color(self):
+    def test_post_request_with_invalid_hex_color(self):
         hash_id = get_hashids().encode(self.user_color1.pk)
         response = self.client.post(reverse('color_diary:edit-color', kwargs={'color_hash_id': hash_id}), data={
             'hex_color': 'zzzzzzzz'
