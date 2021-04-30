@@ -196,7 +196,6 @@ class DiaryModelFormTests(TestCase):
                 'context': CONTEXT
             })
         form.is_valid()
-        print(form.errors)
         self.assertTrue(form.is_valid())
 
     def test_is_valid_false_without_user(self):

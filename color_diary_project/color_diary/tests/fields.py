@@ -73,11 +73,11 @@ class HexColorTests(TestCase):
 class ParseHexColorTests(TestCase):
     def test_red_with_string(self):
         with self.assertRaisesMessage(ValueError, expected_message='RGB must be hex.'):
-            print(parse_hex_color('zzffff1.0'))
+            parse_hex_color('zzffff1.0')
 
     def test_alpha_with_string(self):
         with self.assertRaisesMessage(ValueError, expected_message='hex_color_code is wrong.'):
-            print(parse_hex_color('ffffffk'))
+            parse_hex_color('ffffffk')
 
     def test_parse_hex_color_with_symbol(self):
         hex_color = parse_hex_color('#ffffff-----$%$"&"&"$%"$%"&"----0')
