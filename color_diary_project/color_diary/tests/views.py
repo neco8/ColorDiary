@@ -136,8 +136,6 @@ class RegisterViewTests(TestCase):
         self.assertEqual(self.client.session.get('_auth_user_id'), str(user.pk))
 
 class ChooseColorViewTests(TestCase):
-    # todo: 色選択画面からは色一覧画面には行かせない。色追加だけできるようにする
-    # todo: デフォルトカラーが選択できなかった。要修正
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.red = Color.objects.create(hex_color=parse_hex_color('ff0000'))
@@ -151,60 +149,75 @@ class ChooseColorViewTests(TestCase):
 
         self.client.login(username=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_choose_color_view_with_not_login_user(self):
+    def test_choose_color_view_with_anonymous_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(0)
         choose_color_url = reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id})
         response_before_login = self.client.get(choose_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={choose_color_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_choose_color_get_when_creating_diary(self):
+    # 日記新規作成
+    def test_choose_color_with_get_request_when_creating_diary(self):
         hash_id = get_hashids().encode(0)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
         self.assertContains(response, DEFAULT_COLOR_LEVEL)
         self.assertContains(response, '#FFFFFF')
 
-    def test_choose_color_post_save_session_and_redirect_to_edit_diary_when_creating_diary(self):
+    def test_choose_color_session_with_post_request_when_creating_diary(self):
         hash_id = get_hashids().encode(0)
         response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
             'color': self.red.pk,
             'color_level': 5,
         })
         self.assertEqual(self.client.session['color_id'], self.red.pk)
-        self.assertEqual(self.client.session['color_level'], '5')
+        self.assertEqual(self.client.session['color_level'], 5)
+
+    def test_redirect_to_edit_diary_when_creating_diary(self):
+        hash_id = get_hashids().encode(0)
+        response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
+            'color': self.red.pk,
+            'color_level': 5,
+        })
         self.assertRedirects(response, reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
 
-    def test_choose_color_get_when_editing_diary(self):
+    # 日記編集
+    def test_choose_color_with_get_request_when_editing_diary(self):
         hash_id = get_hashids().encode(self.diary.pk)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
         self.assertContains(response, self.diary.color_level)
         self.assertContains(response, self.diary.color.hex_color)
 
-    def test_choose_color_post_save_session_and_redirect_to_edit_diary_when_editing_diary(self):
+    def test_choose_color_session_with_post_request_when_editing_diary(self):
         hash_id = get_hashids().encode(self.diary.pk)
         response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
             'color': self.green.pk,
             'color_level': 4,
         })
         self.assertEqual(self.client.session['color_id'], self.green.pk)
-        self.assertEqual(self.client.session['color_level'], '4')
+        self.assertEqual(self.client.session['color_level'], 4)
+
+    def test_redirect_to_edit_diary_when_editing_diary(self):
+        hash_id = get_hashids().encode(self.diary.pk)
+        response = self.client.post(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}), {
+            'color': self.green.pk,
+            'color_level': 4,
+        })
         self.assertRedirects(response, reverse('color_diary:edit-diary', kwargs={'diary_hash_id': hash_id}))
 
-    def test_return_404_with_invalid_hashid(self):
+    def test_get_request_404_with_invalid_hash_id(self):
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': 'something389725hogehoge'}))
         self.assertEqual(response.status_code, 404)
 
-    def test_return_404_with_invalid_id(self):
+    def test_get_request_404_with_invalid_id(self):
         hash_id = get_hashids().encode(2111549857857)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
 
-    def test_return_404_with_diary_id_of_other_user(self):
+    def test_get_request_404_with_diary_id_of_other_user(self):
         hash_id = get_hashids().encode(self.diary_user2.pk)
         response = self.client.get(reverse('color_diary:choose-color', kwargs={'diary_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
-
 
 
 class DeleteDiaryViewTests(TestCase):
