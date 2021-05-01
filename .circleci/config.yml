@@ -54,18 +54,24 @@ jobs:
             pip install -r requirements.txt
 
       - run:
+          name: Git Config
+          command: |
+            git config user.email "neco8+circleci@users.noreply.github.com"
+            git config user.name "neco8+circleci"
+
+      - run:
           name: Collect Static
           command: |
             mkdir -p color_diary_project/logs
             touch color_diary_project/logs/app.log
             git switch main
             cd color_diary_project
-
             rm -rf node_modules
             yarn
-
             yarn run css
+
             python manage.py collectstatic
+
             cd ../
             sed -e "s#color_diary_project/static/##" .gitignore
             git add .gitignore
