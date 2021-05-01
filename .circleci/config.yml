@@ -71,8 +71,8 @@ workflows:
       - test
       - deploy:
           filters:
-            - branches:
-                only: main
+            branches:
+              only: main
       - heroku/deploy-via-git:
           requires:
             - test
