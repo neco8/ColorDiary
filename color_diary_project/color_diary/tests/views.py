@@ -514,18 +514,18 @@ class DiaryIndexViewTests(TestCase):
 
         self.diary_of_other_user = Diary.objects.create(user=self.user2, color=self.color_user2, color_level=8, context="this is other user's diary.")
 
-    def test_diary_index_view_with_not_login_user(self):
+    def test_diary_index_view_with_anonymous_user(self):
         self.client.logout()
         diary_index_url = reverse('color_diary:diary-index')
         response_before_login = self.client.get(diary_index_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={diary_index_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={diary_index_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_two_diaries(self):
+    def test_diary_index_with_two_diaries(self):
         response = self.client.get(reverse('color_diary:diary-index'))
         self.assertQuerysetEqual(response.context['diary_list'], [f'<Diary: Diary object ({self.new_diary.pk})>', f'<Diary: Diary object ({self.old_diary.pk})>'])
 
-    def test_older_one_update(self):
+    def test_diary_index_when_older_one_updates(self):
         response = self.client.get(reverse('color_diary:diary-index'))
         self.old_diary.context = 'this is an updated old diary.'
         self.assertQuerysetEqual(response.context['diary_list'], [f'<Diary: Diary object ({self.new_diary.pk})>', f'<Diary: Diary object ({self.old_diary.pk})>'])
