@@ -73,7 +73,7 @@ jobs:
             python manage.py collectstatic
 
             cd ../
-            sed -e "s#color_diary_project/static/##" .gitignore
+            sed -i -e "s#color_diary_project/static/##" .gitignore
             git add .gitignore
             git commit -m 'gitignoreを変更し、staticをデプロイできるようにする'
             git add color_diary_project/static
