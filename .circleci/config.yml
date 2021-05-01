@@ -37,6 +37,16 @@ jobs:
             touch color_diary_project/logs/app.log
             python color_diary_project/manage.py test color_diary
       
+  deploy:
+    docker:
+      - image: cimg/python:3.9-node
+        auth:
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASSWORD
+
+    working_directory: ~/code
+    steps:
+      - checkout
       - run:
           name: Collect Static
           command: |
@@ -59,6 +69,10 @@ workflows:
   heroku_deploy:
     jobs:
       - test
+      - deploy:
+          filters:
+            - branches:
+                only: main
       - heroku/deploy-via-git:
           requires:
             - test
