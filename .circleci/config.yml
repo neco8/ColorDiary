@@ -42,6 +42,10 @@ jobs:
           command: |
             git switch main
             cd color_diary_project
+
+            rm -rf node_modules
+            yarn
+
             yarn run css
             python manage.py collectstatic
             cd ../
