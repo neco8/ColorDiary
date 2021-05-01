@@ -537,12 +537,15 @@ class ColorIndexViewTests(TestCase):
         # 彩度高い方が大きい
         # 黒の方が大きい
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
-        self.user_color4 = Color.objects.create(hex_color=parse_hex_color('e60000')) # より黒い
-        self.user_color3 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
-        self.user_color6 = Color.objects.create(hex_color=parse_hex_color('ff5400')) # さらに色相が高い
+        # #FFFFFF-0.0
         self.user_color1 = Color.objects.create(hex_color=parse_hex_color('000000')) # 無彩色は一番最初に来る
         self.user_color2 = Color.objects.create(hex_color=parse_hex_color('ff1919')) # 彩度が低い
+        self.user_color3 = Color.objects.create(hex_color=parse_hex_color('ff0000'))
+        self.user_color4 = Color.objects.create(hex_color=parse_hex_color('e60000')) # より黒い
         self.user_color5 = Color.objects.create(hex_color=parse_hex_color('ff2a00')) # 色相が高い
+        # #F7774D-1.0
+        self.user_color6 = Color.objects.create(hex_color=parse_hex_color('ff5400')) # さらに色相が高い
+        # #F9BB2B-1.0, #B7BF19-1.0, #00A583-1.0, #008FB3-1.0, #4D73BB-1.0, #9C5DA0-1.0, #D75674-1.0
         self.user2 = get_user_model().objects.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         self.user2_color1 = Color.objects.create(hex_color=parse_hex_color('00ff00'))
         self.user2_color2 = Color.objects.create(hex_color=parse_hex_color('00ff11'))
@@ -556,20 +559,22 @@ class ColorIndexViewTests(TestCase):
         self.client.logout()
         color_index_url = reverse('color_diary:color-index')
         response_before_login = self.client.get(color_index_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={color_index_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={color_index_url}'
         self.assertRedirects(response_before_login, login_url)
 
     def test_order_of_color(self):
         response = self.client.get(reverse('color_diary:color-index'))
         l = response.context['color_list']
-        self.assertQuerysetEqual(response.context['color_list'], [
-            f'<Color: {Color.get_default_color()}>',
-            f'<Color: {self.user_color1}>',
-            f'<Color: {self.user_color2}>',
-            f'<Color: {self.user_color3}>',
-            f'<Color: {self.user_color4}>',
-            f'<Color: {self.user_color5}>',
-            f'<Color: {self.user_color6}>',
+        self.assertEqual([str(color) for color in response.context['color_list']], [
+            f'{Color.get_default_color()}',
+            f'{self.user_color1}',
+            f'{self.user_color2}',
+            f'{self.user_color3}',
+            f'{self.user_color4}',
+            f'{self.user_color5}',
+            '#F7774D-1.0',
+            f'{self.user_color6}',
+            '#F9BB2B-1.0', '#B7BF19-1.0', '#00A583-1.0', '#008FB3-1.0', '#4D73BB-1.0', '#9C5DA0-1.0', '#D75674-1.0'
         ])
 
     def test_disabled_link_of_default_color(self):
