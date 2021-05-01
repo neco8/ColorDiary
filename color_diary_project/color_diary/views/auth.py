@@ -69,7 +69,6 @@ class RegisterView(CreateView):
         message = render_to_string('color_diary/mail/register/message.txt', context)
 
         user.email_user(subject, message)
-        print()
         return redirect('color_diary:register-done')
 
 

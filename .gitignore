@@ -1,3 +1,6 @@
+docker-compose.local.yml
+db/
+nginx/Dockerfile.nginx
 # color_diary_project/color_diary/static/color_diary/css
 .idea
 .vscode

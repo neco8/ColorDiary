@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models import IntegerField, Case, When, Value
 from django.contrib.auth import authenticate
 
@@ -16,6 +17,7 @@ class ChooseColorForm(forms.Form):
     color = forms.ModelChoiceField(widget=forms.RadioSelect, initial=Color.get_default_color, queryset=None)
     color_level = forms.IntegerField(
         initial=DEFAULT_COLOR_LEVEL,
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
         widget=forms.NumberInput(attrs={
             'type': 'range',
             'step': '1',
@@ -141,7 +143,7 @@ class DiaryModelForm(forms.ModelForm):
     def save(self, commit=True):
         # 自身で変更できるのは作成日時だけ。更新日時は変更できない。日記一覧では作成日時のみを表示する。
         now = timezone.now()
-        if self.instance.created_at == '':
+        if self.cleaned_data['created_at'] is None:
             self.instance.created_at = now
 
         if commit:
@@ -162,6 +164,13 @@ class UserLoginForm(forms.ModelForm):
     
     def clean(self):
         # ただログインするだけなので、validate_uniqueをTrueにしない必要がある
+        email = self.cleaned_data['email']
+        password = self.cleaned_data['password']
+
+        user = User.objects.get_by_natural_key(email)
+        if not user.check_password(password):
+            raise ValidationError('Email or Password is invalid.')
+
         return self.cleaned_data
 
     def clean_email(self):
