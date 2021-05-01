@@ -56,6 +56,8 @@ jobs:
       - run:
           name: Collect Static
           command: |
+            mkdir -p color_diary_project/logs
+            touch color_diary_project/logs/app.log
             git switch main
             cd color_diary_project
 
@@ -76,12 +78,14 @@ workflows:
     jobs:
       - test
       - deploy:
+          requires:
+            - test
           filters:
             branches:
               only: main
       - heroku/deploy-via-git:
           requires:
-            - test
+            - deploy
           filters:
             branches:
               only: main
