@@ -175,7 +175,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'color_diary_project/logs/app.log',
+            'filename': os.path.join(BASE_DIR, 'logs/app.log'),
             'formatter': 'verbose',
         }
     },
