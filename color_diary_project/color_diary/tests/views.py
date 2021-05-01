@@ -435,8 +435,6 @@ class EditDiaryViewTests(TestCase):
 
 
 class EditColorViewTests(TestCase):
-    # todo: データベースに変更があるものはリダイレクトされるか確認する
-    # todo: 将来的にカラーピッカーを追加する
     def setUp(self) -> None:
         self.user = get_user_model().objects.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         self.default_color = Color.get_default_color()
