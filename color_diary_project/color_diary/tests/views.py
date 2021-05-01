@@ -36,23 +36,22 @@ class LoginViewTests(TestCase):
             'email': EXAMPLE_EMAIL,
             'password': PASSWORD2
         })
-        self.assertContains(response, 'invalid login.')
+        self.assertContains(response, 'Email or Password is invalid.')
         self.assertContains(response, EXAMPLE_EMAIL)
         self.assertIsNone(response.request.get('password'))
-        self.assertIsNotNone(response.context['error_message'])
 
-    def test_redirect_when_login_succeeded(self):
+    def test_redirect_to_diary_index_view_when_login_succeeded(self):
         response = self.client.post(reverse('color_diary:login'), data={
             'email': EXAMPLE_EMAIL,
             'password': PASSWORD1,
         })
         self.assertRedirects(response, reverse('color_diary:diary-index'))
 
-    def test_redirect_to_choose_color_view_after_logging_in(self):
+    def test_redirect_to_choose_color_view_after_logging_in_when_visited(self):
         self.client.logout()
         hash_id = get_hashids().encode(self.diary.pk)
         redirect_url = reverse("color_diary:choose-color", kwargs={"diary_hash_id": hash_id})
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={redirect_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={redirect_url}'
         response = self.client.post(login_url, data={
             'email': EXAMPLE_EMAIL,
             'password': PASSWORD1,
@@ -555,7 +554,7 @@ class ColorIndexViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_color_index_view_with_not_login_user(self):
+    def test_color_index_view_with_anonymous_user(self):
         self.client.logout()
         color_index_url = reverse('color_diary:color-index')
         response_before_login = self.client.get(color_index_url)

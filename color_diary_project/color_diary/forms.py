@@ -164,6 +164,13 @@ class UserLoginForm(forms.ModelForm):
     
     def clean(self):
         # ただログインするだけなので、validate_uniqueをTrueにしない必要がある
+        email = self.cleaned_data['email']
+        password = self.cleaned_data['password']
+
+        user = User.objects.get_by_natural_key(email)
+        if not user.check_password(password):
+            raise ValidationError('Email or Password is invalid.')
+
         return self.cleaned_data
 
     def clean_email(self):
