@@ -493,7 +493,7 @@
 
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: calc(100vh - $headerHeightRate) auto;
+    grid-template-rows: calc(100vh - #{$headerHeightRate}) auto;
 
     .top {
         grid-column: 1;
