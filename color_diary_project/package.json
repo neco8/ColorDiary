@@ -16,9 +16,9 @@
   },
   "scripts": {
     "css/sass/stylelint": "./node_modules/.bin/stylelint ./color_diary/static/color_diary/scss/*.scss",
-    "css/sass/compile": "./node_modules/.bin/sass ./color_diary/static/color_diary/scss/style.scss ./color_diary/static/color_diary/css/style.css --watch",
+    "css/sass/compile": "./node_modules/.bin/sass ./color_diary/static/color_diary/scss/style.scss ./color_diary/static/color_diary/css/style.css",
     "css/sass": "yarn run css/sass/stylelint && yarn run css/sass/compile",
-    "css/postcss": "./node_modules/.bin/postcss ./color_diary/static/color_diary/css/style.css -r true --watch",
+    "css/postcss": "./node_modules/.bin/postcss ./color_diary/static/color_diary/css/style.css -r true",
     "css": "yarn run css/sass && yarn run css/postcss"
   },
   "browserslist": [
