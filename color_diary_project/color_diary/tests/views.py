@@ -234,27 +234,27 @@ class DeleteDiaryViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_delete_diary_view_with_not_login_user(self):
+    def test_delete_diary_view_with_anonymous_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(self.diary.pk)
         delete_diary_url = reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id})
         response_before_login = self.client.get(delete_diary_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={delete_diary_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={delete_diary_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_redirect_to_diary_index_after_deleting(self):
+    def test_redirect_to_diary_index_view_after_deleting(self):
         hash_id = get_hashids().encode(self.diary.pk)
         response = self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
         self.assertRedirects(response, reverse('color_diary:diary-index'))
 
-    def test_delete_only_my_diary(self):
+    def test_delete_my_diary(self):
         my_diary_pk = self.diary.pk
         hash_id = get_hashids().encode(my_diary_pk)
         self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
         with self.assertRaises(Diary.DoesNotExist):
             my_diary = Diary.objects.get(id=my_diary_pk, user=self.user)
 
-    def test_cannot_delete_diary_of_other_user_and_return_404(self):
+    def test_cannot_delete_other_user_s_diary_and_return_404(self):
         hash_id = get_hashids().encode(self.diary_of_user2.pk)
         response = self.client.post(reverse('color_diary:delete-diary', kwargs={'diary_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
