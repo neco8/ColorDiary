@@ -98,10 +98,10 @@ jobs:
 
             cd ../
             sed -i -e "s#color_diary_project/static/##" .gitignore
-            git add .gitignore
-            git commit -m 'gitignoreを変更し、staticをデプロイできるようにする'
-            git add color_diary_project/static
-            git commit -m 'static'
+            git add --ignore-errors .gitignore
+            git commit -m --allow-empty 'gitignoreを変更し、staticをデプロイできるようにする'
+            git add --ignore-errors color_diary_project/static
+            git commit -m --allow-empty 'static'
             git push origin main
       
 workflows:
