@@ -1,5 +1,5 @@
-# color_diary_project/color_diary/static/color_diary/css/
 docker-compose.local.yml
+color_diary_project/color_diary/static/color_diary/css/
 color_diary_project/static/
 .idea
 .vscode
