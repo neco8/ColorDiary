@@ -1,0 +1,539 @@
+@use 'const' as *;
+
+@mixin placeholder($color) {
+    &::placeholder {
+        color: $color;
+    }
+
+    &:-ms-input-placeholder {
+        color: $color;
+    }
+
+    &::-ms-input-placeholder {
+        color: $color;
+    }
+}
+
+%button {
+    width: 120px;
+    padding: $gridLength * .25 $gridLength $gridLength * .25;
+    border-radius: 1.5px;
+    background-color: $primaryColor;
+    color: #FFF;
+    font-size: .65rem;
+    font-family: $fontRaleway;
+    font-weight: 400;
+    box-shadow: $distance1BoxShadow;
+    transition: box-shadow $transitionTime;
+
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+        color: #FFF;
+        box-shadow: $distance2BoxShadow;
+    }
+
+    &::selection {
+        cursor: pointer;
+    }
+}
+
+%button-delete {
+    @extend %button;
+    background-color: $deleteColor;
+    color: #FFF;
+
+    &:hover {
+        color: #FFF;
+    }
+}
+
+%button-cancel {
+    @extend %button;
+    background-color: rgba(0, 0, 0, .08);
+    color: #000;
+
+    &:hover {
+        color: #000;
+    }
+}
+
+.errorlist {
+    li {
+        color: $errorColor;
+        font-size: .5rem;
+        font-family: $fontRaleway;
+        padding: .3rem;
+    }
+
+    li::before {
+        font-family: $fontAwesome;
+        content: '\f071';
+        font-weight: 900;
+        display: inline-block;
+        line-height: 1;
+        padding-right: .2rem;
+    }
+}
+
+.button {
+    @extend %button;
+}
+
+a.button {
+    @extend %button;
+}
+
+.button-delete {
+    @extend %button-delete;
+}
+
+a.button-delete {
+    @extend %button-delete;
+}
+
+.button-cancel {
+    @extend %button-cancel;
+}
+
+a.button-cancel {
+    @extend %button-cancel;
+}
+
+#header {
+    background-color: $primaryColor;
+    a {
+        color: $backgroundColor;
+        font-size: .65rem;
+        font-family: $fontPhilosopher;
+        padding: .6rem 0px .6rem;
+    }
+}
+
+#content {
+    background-image: linear-gradient( transparent 95%, rgba($secondaryColor, .18) 50%, rgba($secondaryColor, .18)), linear-gradient( 90deg, transparent 95%, rgba($secondaryColor, .18) 50%, rgba($secondaryColor, .18) );
+    background-size: $gridLength $gridLength;
+    background-repeat: repeat;
+    background-color: $backgroundColor;
+}
+
+%mediumContentContainerAppearance {
+    background-color: #fff;
+    box-shadow: $distance2BoxShadow;
+
+    border: solid;
+    border-color: rgba($primaryColor, .06);
+    border-width: 1px;
+    border-radius: 2px;
+}
+
+%colorContainer {
+    width: auto;
+    border-radius: 2px;
+    %colorContent {
+        border: solid;
+        border-width: 1px;
+        border-radius: 1.5px;
+
+        display: grid;
+        place-items: center;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    input[type='radio'] {
+        + .colorContent-select {
+            @extend %colorContent;
+
+            position: relative;
+        }
+
+        &:checked + .colorContent-select:after {
+            content: '';
+            background-color: rgba(255, 255, 255, .6);
+            box-sizing: content-box;
+            border: solid;
+            border-width: 3px;
+            border-color: inherit;
+            border-radius: 1.5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+    }
+
+    .colorContent-button {
+        @extend %colorContent;
+
+        position: relative;
+        &:hover:after {
+            content: '';
+            background-color: rgba(255, 255, 255, .6);
+            box-sizing: content-box;
+            border: solid;
+            border-width: 3px;
+            border-color: inherit;
+            border-radius: 1.5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+    }
+
+    .colorContent-disable {
+        @extend %colorContent;
+
+        cursor: not-allowed;
+
+        &:hover {
+            cursor: not-allowed;
+        }
+    }
+
+    .transparent {
+        background: linear-gradient(45deg, rgba(0, 0, 0, .05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, .05) 75%),
+            linear-gradient(45deg, rgba(0, 0, 0, .05) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, .05) 75%);
+        background-size: 14px 14px;
+        background-position: 0 0, 7px 7px;
+    }
+}
+
+#chooseColor {
+    form {
+        @extend %mediumContentContainerAppearance;
+
+        .colorContainer {
+            @extend %colorContainer;
+        }
+
+        .sliderWrapper {
+            .slider {
+                -webkit-appearance: none;
+                appearance: none;
+                cursor: grab;
+                background-color: rgba(0, 0, 0, 0);
+                width: 100%;
+
+                &:focus {
+                    outline: none;
+                }
+
+                &:active {
+                    cursor: grabbing;
+                }
+            }
+
+            .sliderTrack {
+                width: 100%;
+                height: 3px;
+                background-color: #eee;
+                border-radius: 1px;
+            }
+
+            .sliderLabelWrapper {
+                padding: $contentSmallMargin * .5;
+                .sliderLabel {
+                    width: 1rem;
+                    font-size: .5rem;
+                    color: rgba(0, 0, 100, .6);
+                }
+            }
+        }
+    }
+}
+
+#editDiary {
+    background-color: #fff;
+
+    textarea {
+        @include placeholder(#BBBBBB);
+        padding: 0px;
+        padding-left: $contentSmallMargin;
+        line-height: 1.35rem;
+        font-size: .75rem;
+        font-family: $fontNotoSans;
+        border-radius: 1.5px;
+    }
+
+    #color {
+        border: solid;
+        border-width: 1px;
+        border-radius: 1px;
+        box-shadow: $distance1BoxShadow;
+
+        &:hover{
+            box-shadow: $distance2BoxShadow;
+        }
+    }
+}
+
+.dropdownMenu {
+    font-family: $fontNotoSans;
+    font-size: .8rem;
+    cursor: pointer;
+
+    .dropdownMenuItem {
+        visibility: hidden;
+
+        li {
+            background-color: #fff;
+            color: #000;
+            font-size: .55rem;
+            box-shadow: $distance1BoxShadow;
+            cursor: initial;
+            transition: visibility $transitionTime;
+
+            .delete {
+                display: block;
+                color: $deleteColor;
+            }
+
+            a:hover {
+                background-color: #F7F7F7;
+            }
+        }
+    }
+
+    .visible {
+        visibility: visible;
+    }
+
+    .icon {
+        font-family: $fontNotoSans;
+        font-size: .75rem;
+        font-weight: bold;
+    }
+}
+
+#colorIndex {
+    .wrapper {
+        @extend %mediumContentContainerAppearance;
+        @extend %colorContainer;
+    }
+}
+
+%deleteObject {
+    @extend %mediumContentContainerAppearance;
+    div.sentence {
+        font-family: $fontNotoSans;
+        font-size: .6rem;
+        color: $deleteColor;
+        .object {
+            padding: .2rem;
+            border-radius: 1px;
+        }
+    }
+}
+
+#deleteColor {
+    .wrapper {
+        @extend %deleteObject;
+    }
+}
+
+#deleteDiary {
+    .wrapper {
+        @extend %deleteObject;
+    }
+}
+
+#diaryIndex {
+    #add {
+        background-color: $primaryColor;
+        border-radius: 50%;
+        display: grid;
+
+        a {
+            display: grid;
+            i {
+                align-self: center;
+                justify-self: center;
+            }
+        }
+    }
+
+    #emptyString {
+        font-family: $fontA1GothicL;
+        font-size: .7rem;
+        color: rgba(0, 0, 0, .6);
+
+        .big {
+            font-size: .9rem;
+        }
+
+        .primaryColor {
+            color: $primaryColor;
+        }
+    }
+
+    .diaryItem {
+        margin-top: -1px;
+        margin-left: -1px;
+        border: solid;
+        border-width: 1px;
+        border-radius: 2px;
+        box-shadow: $distance2BoxShadow;
+        transition: box-shadow $transitionTime;
+
+        .date {
+            font-family: $fontCrimsonPro;
+            font-size: .7rem;
+        }
+
+        .context {
+            font-family: $fontA1GothicL;
+            font-size: .7rem;
+            font-feature-settings: 'pwid' 1;
+            letter-spacing: .02rem;
+        }
+
+        &:hover {
+            box-shadow: $distance3BoxShadow;
+        }
+    }
+}
+
+input[type=text], input[type=email], input[type=password] {
+    border-bottom: solid;
+    border-width: 1px;
+    border-radius: 1px;
+    border-color: rgba($primaryColor, .3);
+    font-family: $fontRaleway;
+    font-weight: 300;
+    font-size: .65rem;
+    padding: .4rem;
+
+    &:hover, &:focus {
+        border-color: rgba($primaryColor, .8);
+    }
+
+    &:focus {
+        background-color: rgba($primaryColor, .03);
+    }
+}
+
+#editColor {
+    form {
+        @extend %mediumContentContainerAppearance;
+        font-family: $fontNotoSans;
+
+        .wrapper {
+            span {
+                font-size: .7rem;
+            }
+
+            #preview {
+                border: solid;
+                border-width: 1px;
+                background-color: #ff0000;
+                border-radius: 1.5px;
+            }
+        }
+    }
+}
+
+%loginRegisterAppearance {
+    @extend %mediumContentContainerAppearance;
+    .titleContainer {
+        #title {
+            font-family: $fontRaleway;
+            font-size: .75rem;
+            letter-spacing: .08em;
+            color: $primaryColor;
+        }
+    }
+}
+
+#login {
+    form {
+        @extend %loginRegisterAppearance;
+    }
+}
+
+#register {
+    form {
+        @extend %loginRegisterAppearance;
+        background-color: $secondaryColor;
+        .titleContainer {
+            #title {
+                color: $primaryColor;
+            }
+        }
+        .wrapper {
+            .button {
+                color: $primaryColor;
+                background-color: #FFF;
+            }
+        }
+    }
+}
+
+#registerDone {
+    .wrapper {
+        @extend %mediumContentContainerAppearance;
+        font-family: $fontA1GothicL;
+        font-size: .7rem;
+        color: rgba(0, 0, 0, .6);
+    }
+}
+
+#welcome {
+    .top {
+        background-color: $primaryColor;
+
+        #title, #discription {
+            color: #fff;
+            user-select: none;
+            font-feature-settings: 'palt' 1;
+        }
+
+        #title {
+            font-family: $fontPhilosopher;
+            font-size: 11.8rem;
+            margin: 0px 0px -1.8rem -1.1rem;
+        }
+
+        #discription {
+            font-family: $fontRoboto;
+            font-size: 1.3rem;
+        }
+    }
+}
+
+#\34 04 {
+    .wrapper {
+        @extend %mediumContentContainerAppearance;
+
+        text-align: center;
+        .English {
+            font-family: $fontPhilosopher;
+            font-size: 1rem;
+            color: $primaryColor;
+        }
+
+        .Japanese {
+            font-family: $fontA1GothicL;
+            font-size: .7rem;
+            color: rgba(0, 0, 0, .6);
+        }
+    }
+}
+
+.pcr-app[data-theme='classic'] {
+    border-radius: 1.5px;
+    box-shadow: none;
+    padding: 0px;
+
+    .pcr-swatches {
+        margin: 0px;
+    }
+}
