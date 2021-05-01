@@ -9,7 +9,7 @@ executors:
 jobs:
   test:
     docker:
-      - image: circleci/python
+      - image: cimg/python:3.9-node
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -37,6 +37,20 @@ jobs:
             touch color_diary_project/logs/app.log
             python color_diary_project/manage.py test color_diary
       
+      - run:
+          name: Collect Static
+          command: |
+            git switch main
+            cd color_diary_project
+            yarn run css
+            python manage.py collectstatic
+            cd ../
+            sed -e "s#color_diary_project/static/##" .gitignore
+            git add .gitignore
+            git add color_diary_project/static
+            git commit -m 'staticをデプロイ'
+            git push origin main
+      
 workflows:
   heroku_deploy:
     jobs:
@@ -47,8 +61,6 @@ workflows:
           filters:
             branches:
               only: main
-          pre-steps:
-            - run: python color_diary_project/manage.py collectstatic
 
 filters:
   branches:
