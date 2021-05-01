@@ -288,26 +288,26 @@ class DeleteColorViewTests(TestCase):
 
         self.client.login(email=EXAMPLE_EMAIL, password=PASSWORD1)
 
-    def test_delete_color_view_with_not_login_user(self):
+    def test_delete_color_view_with_anonymous_user(self):
         self.client.logout()
         hash_id = get_hashids().encode(self.user_color.pk)
         delete_color_url = reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id})
         response_before_login = self.client.get(delete_color_url)
-        login_url = f'/color-diary/login/?{REDIRECT_FIELD_NAME}={delete_color_url}'
+        login_url = f'/login/?{REDIRECT_FIELD_NAME}={delete_color_url}'
         self.assertRedirects(response_before_login, login_url)
 
-    def test_redirect_to_color_index_after_deleting(self):
+    def test_redirect_to_color_index_view_after_deleting(self):
         hash_id = get_hashids().encode(self.user_color.pk)
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
         self.assertRedirects(response, reverse('color_diary:color-index'))
 
-    def test_can_delete_my_color_relationship_and_color_object_still_exist(self):
+    def test_delete_only_color_relationship_and_color_object_still_exist(self):
         hash_id = get_hashids().encode(self.user_color.pk)
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
         self.assertEqual(Color.objects.filter(id=self.user_color.pk).count(), 1)
         self.assertEqual(self.user.colors.filter(id=self.user_color.pk).count(), 0)
 
-    def test_cannot_delete_color_of_other_user_and_return_404(self):
+    def test_cannot_delete_other_user_s_color_and_return_404(self):
         hash_id = get_hashids().encode(self.user2_color.pk)
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
         self.assertEqual(response.status_code, 404)
@@ -322,7 +322,7 @@ class DeleteColorViewTests(TestCase):
         response = self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': 'soMEthingOFHOgehoGEhoge'}))
         self.assertEqual(response.status_code, 404)
 
-    def test_delete_color_that_belongs_to_one_user(self):
+    def test_delete_color_that_belongs_to_one_user_and_then_object_deleted(self):
         hash_id = get_hashids().encode(self.user_color2.pk)
         self.client.post(reverse('color_diary:delete-color', kwargs={'color_hash_id': hash_id}))
         self.assertEqual(Color.objects.filter(hex_color=parse_hex_color('0000ff')).count(), 0)
