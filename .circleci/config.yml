@@ -24,7 +24,19 @@ jobs:
     working_directory: ~/code
     steps:
       - checkout
-      
+
+      - run:
+          name: Decide whether to quit, depending on the content of the commit message.
+          command: |
+            COMMIT_MESSAGE=$(git log -1 HEAD --pretty=format:%s)
+            TRIGGER_MATCH_PATTERN="^static$"
+            if [[ ${COMMIT_MESSAGE} =~ ${TRIGGER_MATCH_PATTERN} ]]; then
+              echo "Quit."
+              circleci-agent step halt
+            else
+              echo "Since the commit message is not static, this job will continue."
+            fi
+
       - run:
           name: Pip Install
           command: |
@@ -47,6 +59,18 @@ jobs:
     working_directory: ~/code
     steps:
       - checkout
+
+      - run:
+          name: Decide whether to quit, depending on the content of the commit message.
+          command: |
+            COMMIT_MESSAGE=$(git log -1 HEAD --pretty=format:%s)
+            TRIGGER_MATCH_PATTERN="^static$"
+            if [[ ${COMMIT_MESSAGE} =~ ${TRIGGER_MATCH_PATTERN} ]]; then
+              echo "Quit."
+              circleci-agent step halt
+            else
+              echo "Since the commit message is not static, this job will continue."
+            fi
 
       - run:
           name: Pip Install
@@ -77,7 +101,7 @@ jobs:
             git add .gitignore
             git commit -m 'gitignoreを変更し、staticをデプロイできるようにする'
             git add color_diary_project/static
-            git commit -m 'staticをデプロイ'
+            git commit -m 'static'
             git push origin main
       
 workflows:
