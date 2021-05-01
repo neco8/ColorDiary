@@ -8,6 +8,7 @@ from django.db.utils import IntegrityError
 from ..fields import HexColor
 from ..models import Color, Diary
 from .constant import *
+from ..signals import hex_color_list
 
 
 class UserModelTests(TestCase):
@@ -93,7 +94,7 @@ class ColorModelTests(TestCase):
         color_list = Color.objects.filter(hex_color=color1.hex_color)
         self.assertEqual(color_list.count(), 1)
 
-    def test_two_users_have_one_color(self):
+    def test_two_users_have_one_color_and_default_colors(self):
         user1 = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         user2 = UserModelTests.create_user(email=EXAMPLE_EMAIL2, password=PASSWORD2)
         color = self.create_color(red='ff', green='00', blue='00')
@@ -104,16 +105,13 @@ class ColorModelTests(TestCase):
         user2_color_list = user2.colors.all()
 
         self.assertEqual(user_list.count(), 2)
-        self.assertEqual(user1_color_list.count(), 2) # ユーザーにはデフォルトで透明な色が追加される
-        self.assertEqual(user2_color_list.count(), 2) # ユーザーにはデフォルトで透明な色が追加される
+        self.assertEqual(user1_color_list.count(), 1 + 1 + len(hex_color_list)) # ユーザーにはデフォルトで透明な色とデフォルトの色が追加される
+        self.assertEqual(user2_color_list.count(), 1 + 1 + len(hex_color_list)) # ユーザーにはデフォルトで透明な色とデフォルトの色が追加される
 
         self.assertEqual(user_list[0].pk, user1.pk)
         self.assertEqual(user_list[1].pk, user2.pk)
 
-        self.assertEqual(user1_color_list[1].pk, color.pk) # ユーザーにはデフォルトで透明な色が追加される
-        self.assertEqual(user2_color_list[1].pk, color.pk) # ユーザーにはデフォルトで透明な色が追加される
-
-    def test_one_user_have_two_color(self):
+    def test_one_user_have_two_colors_and_default_colors(self):
         user = UserModelTests.create_user(email=EXAMPLE_EMAIL, password=PASSWORD1)
         red = self.create_color(red='ff', green='00', blue='00')
         green = self.create_color(red='00', green='ff', blue='00')
@@ -126,10 +124,7 @@ class ColorModelTests(TestCase):
 
         self.assertEqual(red_user_list.count(), 1)
         self.assertEqual(green_user_list.count(), 1)
-        self.assertEqual(color_list.count(), 3) # ユーザーにはデフォルトで透明な色が追加される
-
-        self.assertEqual(color_list[1].pk, red.pk) # ユーザーにはデフォルトで透明な色が追加される
-        self.assertEqual(color_list[2].pk, green.pk) # ユーザーにはデフォルトで透明な色が追加される
+        self.assertEqual(color_list.count(), 2 + 1 + len(hex_color_list)) # ユーザーにはデフォルトで透明な色が追加される
 
         self.assertEqual(red_user_list[0].pk, user.pk)
         self.assertEqual(green_user_list[0].pk, user.pk)
