@@ -1,0 +1,60 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    display: grid;
+    margin: 0px;
+
+    font-size: 24px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+
+    &:visited, &:hover, &:active {
+        color: inherit;
+    }
+}
+
+ul {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+input[type=radio] {
+    display: none;
+}
+
+input[type=text], textarea, input[type=email], input[type=password] {
+    appearance: none;
+    box-shadow: none;
+    outline: none;
+    border: none;
+}
+
+input[type=range i] {
+//     appearance: none;
+    margin: 0px;
+}
+
+%button {
+    appearance: none;
+    border: none;
+    outline: none;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.button, .button-icon, .button-cancel, .button-delete {
+    @extend %button;
+}
+
+.inlink {
+    z-index: 2;
+}
