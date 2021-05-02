@@ -101,12 +101,12 @@ jobs:
             sed -i -e "s#color_diary_project/static/##" .gitignore
             git add -f .gitignore
             echo "gitignore add 終了"
-            git commit -m --allow-empty 'gitignoreを変更し、staticをデプロイできるようにする'
+            git commit -m --allow-empty "gitignoreを変更し、staticをデプロイできるようにする"
             echo gitignore関連の操作終了
             echo staticをコミットスタート
             git add -f color_diary_project/static
             echo "static add 終了"
-            git commit -m --allow-empty 'static'
+            git commit -m --allow-empty "static"
             echo staticをコミット終了
             git push origin main
       
