@@ -2,7 +2,7 @@ FROM nginx
 
 RUN rm /etc/nginx/conf.d/default.conf
 
-COPY nginx.conf /etc/nginx
+COPY nginx/nginx.conf /etc/nginx
 COPY color_diary_project/static /var/www/static
 
 RUN mkdir -p /var/www/
