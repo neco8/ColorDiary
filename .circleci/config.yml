@@ -97,17 +97,11 @@ jobs:
             python manage.py collectstatic --no-input -c
 
             cd ../
-            echo gitignore関連の操作スタート
             sed -i -e "s#color_diary_project/static/##" .gitignore
             git add -f .gitignore
-            echo "gitignore add 終了"
-            git commit -m --allow-empty "gitignoreを変更し、staticをデプロイできるようにする"
-            echo gitignore関連の操作終了
-            echo staticをコミットスタート
+            git commit -m "gitignoreを変更し、staticをデプロイできるようにする" --allow-empty
             git add -f color_diary_project/static
-            echo "static add 終了"
-            git commit -m --allow-empty "static"
-            echo staticをコミット終了
+            git commit -m "static" --allow-empty
             git push origin main
       
 workflows:
