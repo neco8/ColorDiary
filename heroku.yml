@@ -1,6 +1,8 @@
 build:
   docker:
     web: Dockerfile.heroku.nginx
-    worker: Dockerfile
+    worker: Dockerfile.heroku
+  config:
+    ID: $UID
 run:
   worker: /bin/bash ./start-django.sh
