@@ -3,9 +3,6 @@ version: 2.1
 orbs:
   heroku: circleci/heroku@1.2.6
 
-executors:
-  my-executor:
-
 jobs:
   test:
     docker:
@@ -103,7 +100,8 @@ jobs:
             git add -f color_diary_project/static
             git commit -m "static" --allow-empty
             git push origin main
-      
+            exit 1
+
 workflows:
   heroku_deploy:
     jobs:
