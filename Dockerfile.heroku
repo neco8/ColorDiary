@@ -1,7 +1,5 @@
 FROM python:3.9
 
-ARG ID
-
 RUN apt-get update -qq && \
     apt-get install -y \
     sudo \
@@ -12,9 +10,6 @@ RUN sed -i /etc/sudoers -re 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' && 
     sed -i /etc/sudoers -re 's/^#includedir.*/## **Removed the include directive** ##"/g' && \
     echo "django ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN groupadd -g $ID -o django && \
-    useradd -u $ID -g $ID -o django
-
 WORKDIR /code
 
 COPY ./requirements.txt /code/
@@ -23,6 +18,4 @@ RUN python -m pip install -r requirements.txt
 
 RUN mkdir -p color_diary_project
 COPY ./color_diary_project/ /code/color_diary_project
-COPY ./start_django.sh /code/
-
-USER django
+COPY ./start_django.heroku.sh /code/
