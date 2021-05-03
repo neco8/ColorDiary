@@ -8,4 +8,6 @@ COPY color_diary_project/static /var/www/static
 RUN mkdir -p /var/www/
 RUN chown $ID:$ID -R /var/www
 
-CMD sed -i -e 's/user www-data;//g' /etc/nginx/nginx.conf && sed -i -e 's/listen 80;/'"listen $PORT;"'/g' /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+CMD sed -i -e 's/user www-data;//g' /etc/nginx/nginx.conf && \
+    sed -i -e 's/listen 80;/'"listen $PORT;"'/g' /etc/nginx/nginx.conf && \
+    nginx -g 'daemon off;'
