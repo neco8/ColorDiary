@@ -10,5 +10,5 @@ RUN chown $ID:$ID -R /var/www
 
 CMD sed -i -e 's/user www-data;//g' /etc/nginx/nginx.conf && \
     sed -i -e 's/listen 80;/'"listen $PORT;"'/g' /etc/nginx/nginx.conf && \
-    sed -i -e 's/back/127.0.0.1/g'
+    sed -i -e 's/back/127.0.0.1/g' /etc/nginx/nginx.conf && \
     nginx -g 'daemon off;'
