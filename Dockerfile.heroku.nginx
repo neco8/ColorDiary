@@ -9,4 +9,4 @@ COPY start_nginx.sh /etc/nginx
 RUN mkdir -p /var/www/
 RUN chown $ID:$ID -R /var/www
 
-CMD start_nginx.sh
+CMD /etc/nginx/start_nginx.sh
