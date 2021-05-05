@@ -4,9 +4,9 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 COPY nginx/nginx.conf /etc/nginx
 COPY color_diary_project/static /var/www/static
-COPY start_nginx.sh ~/
+COPY start_nginx.sh /etc/nginx
 
 RUN mkdir -p /var/www/
 RUN chown $ID:$ID -R /var/www
 
-CMD ~/start_nginx.sh
+CMD sudo bash -c /etc/nginx/start_nginx.sh
