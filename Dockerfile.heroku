@@ -4,12 +4,12 @@ RUN apt-get update -qq && \
     apt-get install -y \
     default-mysql-client
 
-WORKDIR /code
+WORKDIR ~/code
 
-COPY ./requirements.txt /code/
+COPY ./requirements.txt ~/code/
 
 RUN python -m pip install -r requirements.txt
 
 RUN mkdir -p color_diary_project
-COPY ./color_diary_project/ /code/color_diary_project
-COPY ./start_django.heroku.sh /code/
+COPY ./color_diary_project/ ~/code/color_diary_project
+COPY ./start_django.heroku.sh ~/code/
