@@ -2,4 +2,4 @@ build:
   docker:
     web: Dockerfile.heroku
 run:
-  web: /bin/bash /code/start-django.heroku.sh
+  web: /bin/bash ~/code/start-django.heroku.sh
