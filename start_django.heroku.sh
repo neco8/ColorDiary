@@ -1,6 +1,6 @@
 #!/bin/bash
 
-until mysqladmin ping -h $DB_HOST --silent; do
+until telnet --silent 3306 ; do
     echo 'waiting for mysqld to be connectable...'
     sleep 2
 done
