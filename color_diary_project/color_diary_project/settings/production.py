@@ -7,4 +7,4 @@ DEBUG = False
 try:
     from .heroku import *
 except:
-    pass
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'back']
